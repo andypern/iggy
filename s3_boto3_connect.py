@@ -40,7 +40,11 @@ s3client = session.client('s3',
 		aws_access_key_id = access_key,
         aws_secret_access_key = secret_key,
 		endpoint_url=prefix + slab + suffix + port,
-		config=boto3.session.Config(signature_version='s3')
+		config=boto3.session.Config(
+			signature_version='s3',
+			connect_timeout=60,
+			read_timeout=60,
+			s3={'addressing_style': 'path'})
 		)
 
 
