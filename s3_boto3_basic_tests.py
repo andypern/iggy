@@ -283,6 +283,73 @@ def get_slew_bucket_ops(cName):
 
 
 
+
+#
+#Object get ops
+#
+
+
+def get_slew_object_ops(cName,objKey):
+	#first lets build and print out the list of avail ops
+
+	print "+++++++++++++++++"
+	method_list = dir(s3client)
+	# we'll want a regex to filter for the ones we want.
+	get_bucket_Re = re.compile('^get_object')
+	
+
+	for method in method_list:
+		if get_bucket_Re.match(method):
+			print method
+			callable_method = getattr(s3client, method)
+			try:
+				response = callable_method(
+					Bucket=cName,
+					Key=objKey
+					)
+				print response
+			except botocore.exceptions.ClientError as e:
+				print e.response
+
+#
+# Bucket put ops .  Can't quite iterate through like we did with
+# the 'gets'.  So...here goes..
+#
+
+
+def put_bucket_acl(cName):
+	print "+++++++++++++++++"
+	
+	try:
+		response = s3client.put_bucket_acl(
+			ACL='private',
+			AccessControlPolicy={
+		        'Grants': [
+		            {
+		                'Grantee': {
+		                    'DisplayName': 'dorkface',
+		                    'EmailAddress': 'dork@dork.com',
+		                    'Type': 'CanonicalUser',
+		                    'ID': 'apkey'
+		                },
+		                'Permission': 'FULL_CONTROL'
+		            },
+		        ],
+		        'Owner': {
+		            'DisplayName': 'igneous',
+		            'ID': 'igneous'
+		        }
+		    },
+			Bucket=cName
+			)
+
+		print response
+	except botocore.exceptions.ClientError as e:
+		print e.response
+
+
+
+
 #########
 #end of functions
 #########
@@ -321,6 +388,7 @@ put_object_with_acl(cName)
 put_object_acl(objKey,cName)
 
 get_slew_bucket_ops(cName)
+get_slew_object_ops(cName,objKey)
 
 
 
