@@ -3,6 +3,7 @@
 import boto3
 import botocore
 
+from datetime import datetime
 import time
 import os
 import sys
@@ -10,7 +11,17 @@ import getopt
 import re
 from string import ascii_uppercase
 from random import choice
-from botocore.exceptions import ClientError
+
+
+
+
+#TODO: 
+
+
+# * make a way to specify which tests you want to run, eg:
+# - --tests put_bucket_acl,put_object_acl , etc
+# * make a flag that runs all tests, instead of hand-calling them
+# * 
 
 
 
@@ -102,7 +113,10 @@ def make_session():
 
 
 
-
+######Bucket ops#####
+#
+#
+#
 
 def list_buckets():
 	#
@@ -141,6 +155,8 @@ def create_bucket():
 		print e.response
 
 
+
+
 #
 # access , list , HEAD bucket we just created
 #
@@ -148,10 +164,6 @@ def create_bucket():
 
 def head_bucket(cName):
 
-
-	
-
-	
 	#HEAD first :)  this fails if we don't set an acl at create time
 	try:
 		s3client.head_bucket(Bucket=cName)
@@ -184,6 +196,395 @@ def list_objects(cName):
 		print e.response
 
 
+
+
+
+def get_slew_bucket_ops(cName):
+	
+	#
+	#slew of bucket operations packed into a single function for now
+	#
+
+	#first, build a list of methods
+	print "+++++++++++++++++"
+	method_list = dir(s3client)
+	# we'll want a regex to filter for the ones we want.
+	get_bucket_Re = re.compile('^get_bucket')
+	
+
+	for method in method_list:
+		if get_bucket_Re.match(method):
+			print method
+			callable_method = getattr(s3client, method)
+			try:
+				response = callable_method(
+					Bucket=cName
+					)
+				print response
+			except botocore.exceptions.ClientError as e:
+				print e.response
+
+def list_multipart_uploads(cName):
+	#this is actually a bucket level op
+	print '+++list_multipart_uploads+++'
+
+	try:
+		response = s3client.list_multipart_uploads(
+	    Bucket=cName
+		)
+		print response
+	except botocore.exceptions.ClientError as e:
+		print e.response
+
+def list_object_versions(cName):
+	#this is another bucket op
+	print '+++list_object_versions+++'
+
+	try:
+		response = s3client.list_object_versions(
+	    Bucket=cName
+		)
+		print response
+	except botocore.exceptions.ClientError as e:
+		print e.response
+
+
+#
+# Bucket put ops .  Can't quite iterate through like we did with
+# the 'gets'.  So...here goes..
+#
+
+
+def put_bucket_acl(cName):
+	print '+++put_bucket_acl+++'
+	
+	try:
+		response = s3client.put_bucket_acl(
+			ACL='private',
+			Bucket=cName
+			)
+
+		print response
+	except botocore.exceptions.ClientError as e:
+		print e.response
+
+def put_bucket_cors(cName):
+	print '+++put_bucket_cors+++'
+	
+	try:
+		response = s3client.put_bucket_cors(
+		    Bucket=cName,
+		    CORSConfiguration={
+		        'CORSRules': [
+		            {
+		                'AllowedHeaders': [
+		                    'string',
+		                ],
+		                'AllowedMethods': [
+		                    'PUT','GET','POST','HEAD','DELETE',
+		                ],
+		                'AllowedOrigins': [
+		                    '*',
+		                ],
+		                'ExposeHeaders': [
+		                    'string',
+		                ],
+		                'MaxAgeSeconds': 123
+		            },
+		        ]
+		    },
+
+		)
+
+		print response
+	except botocore.exceptions.ClientError as e:
+		print e.response
+
+
+
+def put_bucket_lifecycle_configuration(cName):
+	print '+++put_bucket_lifecycle_configuration+++'
+	
+	try:
+		response = s3client.put_bucket_lifecycle_configuration(
+    Bucket=cName,
+    LifecycleConfiguration={
+        'Rules': [
+            {
+                'Expiration': {
+                    'Date': datetime(2015, 1, 1),
+                    'Days': 123,
+                    'ExpiredObjectDeleteMarker': True|False
+                },
+                'ID': 'configrule',
+                'Prefix': 'logs/',
+                'Status': 'Enabled',
+                'Transitions': [
+                    {
+                        'Date': datetime(2015, 1, 1),
+                        'Days': 123,
+                        'StorageClass': 'STANDARD_IA'
+                    },
+                ],
+                'NoncurrentVersionTransitions': [
+                    {
+                        'NoncurrentDays': 123,
+                        'StorageClass': 'STANDARD_IA'
+                    },
+                ],
+                'NoncurrentVersionExpiration': {
+                    'NoncurrentDays': 123
+                },
+                'AbortIncompleteMultipartUpload': {
+                    'DaysAfterInitiation': 123
+                }
+            },
+        ]
+    }
+)
+
+		print response
+	except botocore.exceptions.ClientError as e:
+		print e.response
+
+def put_bucket_logging(cName):
+	print '+++put_bucket_logging+++'
+	
+	try:
+		response = s3client.put_bucket_logging(
+		    Bucket=cName,
+		    BucketLoggingStatus={
+		        'LoggingEnabled': {
+		            'TargetBucket': cName,
+		            'TargetGrants': [
+		                {
+		                    'Grantee': {
+		                        'DisplayName': 'iggy',
+		                        'EmailAddress': 'iggy@igneous.io',
+		                        'ID': 'iggyID',
+		                        'Type': 'CanonicalUser'
+		                    },
+		                    'Permission': 'FULL_CONTROL'
+		                },
+		            ],
+		            'TargetPrefix': 'logs/'
+		        }
+		    },
+		)
+
+		print response
+	except botocore.exceptions.ClientError as e:
+		print e.response
+
+
+
+
+def put_bucket_notification_configuration(cName):
+	print '+++put_bucket_notification_configuration+++'
+	
+	try:
+		response = s3client.put_bucket_notification_configuration(
+		    Bucket=cName,
+		    NotificationConfiguration={}
+		)
+
+		print response
+	except botocore.exceptions.ClientError as e:
+		print e.response
+
+def put_bucket_policy(cName):
+	print '+++put_bucket_policy+++'
+	
+	try:
+		response = s3client.put_bucket_policy(
+		    Bucket=cName,
+		    Policy='string'
+		)
+
+		print response
+	except botocore.exceptions.ClientError as e:
+		print e.response
+
+def put_bucket_replication(cName):
+	print '+++put_bucket_replication+++'
+	
+	try:
+		response = s3client.put_bucket_replication(
+		    Bucket=cName,
+		    ReplicationConfiguration={
+		        'Role': 'IAM-Role-ARN',
+		        'Rules': [
+		            {
+		                'ID': 'Rule-1',
+		                'Prefix': 'logs/',
+		                'Status': 'Enabled',
+		                'Destination': {
+		                    'Bucket': cName,
+		                    'StorageClass': 'STANDARD'
+		                }
+		            },
+		        ]
+		    }
+		)
+
+		print response
+	except botocore.exceptions.ClientError as e:
+		print e.response
+
+def put_bucket_request_payment(cName):
+	print '+++put_bucket_request_payment+++'
+	
+	try:
+		response = s3client.put_bucket_request_payment(
+		    Bucket=cName,
+		    RequestPaymentConfiguration={
+		        'Payer': 'BucketOwner'
+		    }
+		)
+
+		print response
+	except botocore.exceptions.ClientError as e:
+		print e.response
+
+def put_bucket_tagging(cName):
+	print '+++put_bucket_tagging+++'
+	
+	try:
+		response = s3client.put_bucket_tagging(
+		    Bucket=cName,
+		    Tagging={
+		        'TagSet': [
+		            {
+		                'Key': 'andyp',
+		                'Value': 'is_cool'
+		            },
+		        ]
+		    }
+		)
+
+		print response
+	except botocore.exceptions.ClientError as e:
+		print e.response
+
+def put_bucket_versioning(cName):
+	print '+++put_bucket_versioning+++'
+	
+	try:
+		response = s3client.put_bucket_versioning(
+		    Bucket=cName,
+		    VersioningConfiguration={
+		        'MFADelete': 'Enabled',
+		        'Status': 'Enabled'
+		    }
+		)
+
+		print response
+	except botocore.exceptions.ClientError as e:
+		print e.response
+
+def put_bucket_website(cName):
+	print '+++put_bucket_website+++'
+	
+	try:
+		response = s3client.put_bucket_website(
+		    Bucket=cName,
+		    WebsiteConfiguration={
+		        'ErrorDocument': {
+		            'Key': 'error_page.html'
+		        },
+		        'IndexDocument': {
+		            'Suffix': 'index.html'
+		        },
+		        'RedirectAllRequestsTo': {
+		            'HostName': 'www.iggy.bz',
+		            'Protocol': 'http'
+		        },
+		    }
+		)
+
+		print response
+	except botocore.exceptions.ClientError as e:
+		print e.response
+
+
+
+#
+#
+#
+####end of bucket ops####
+
+
+####Start of object Ops####
+#
+#
+#
+
+#
+#Object get ops
+#
+
+
+def get_slew_object_ops(cName,objKey):
+	#first lets build and print out the list of avail ops
+
+	print "+++++++++++++++++"
+	method_list = dir(s3client)
+	# we'll want a regex to filter for the ones we want.
+	get_bucket_Re = re.compile('^get_object')
+	
+
+	for method in method_list:
+		if get_bucket_Re.match(method):
+			print method
+			callable_method = getattr(s3client, method)
+			try:
+				response = callable_method(
+					Bucket=cName,
+					Key=objKey
+					)
+				print response
+			except botocore.exceptions.ClientError as e:
+				print e.response
+
+
+
+def head_object(cName,objKey):
+	print "+++++++++++++++++"
+	try:
+		response = s3client.head_object(
+			Bucket=cName,
+			Key=objKey)
+		print response
+
+	except botocore.exceptions.ClientError as e:
+		error_code = int(e.response['Error']['Code'])
+		#print error_code
+		print e.response
+
+def list_parts(cName,objKey):
+	#this is probably only valid if there are any multi-part uploads
+	# but it seems to work (empty list)
+
+	print "+++list_parts(%s , %s)+++" %(cName,objKey)
+	try:
+		response = s3client.list_parts(
+			Bucket=cName,
+			Key=objKey,
+			UploadId='xyz')
+		print "ran"
+		#print response
+
+	except botocore.exceptions.ClientError as e:
+		error_code = int(e.response['Error']['Code'])
+		#print error_code
+		print e.response
+	except botocore.parsers.ResponseParserError as e:
+		print 'parser error: %s' %(e)
+
+
+#
+#puts
+#
 
 def put_object_basic(cName):
 	#
@@ -225,7 +626,6 @@ def put_object_acl(objKey,cName):
 	#slightly different, we need to do this against an existing object
 	#
 	print "+++++++++++++++++"
-	objKey = "file-acl-" + (''.join(choice(ascii_uppercase) for i in range(6)))
 
 	try:
 		response = s3client.put_object_acl(
@@ -254,98 +654,42 @@ def put_object_acl(objKey,cName):
 	except botocore.exceptions.ClientError as e:
 		print e.response
 
-
-
-def get_slew_bucket_ops(cName):
-	
+def restore_object(cName,objKey):
 	#
-	#slew of bucket operations packed into a single function for now
+	#note: we do have versions, but i'll just see how we handle request 
+	# before i put a 'real' archived version in here
 	#
-
-	#first, build a list of methods
-	print "+++++++++++++++++"
-	method_list = dir(s3client)
-	# we'll want a regex to filter for the ones we want.
-	get_bucket_Re = re.compile('^get_bucket')
-	
-
-	for method in method_list:
-		if get_bucket_Re.match(method):
-			print method
-			callable_method = getattr(s3client, method)
-			try:
-				response = callable_method(
-					Bucket=cName
-					)
-				print response
-			except botocore.exceptions.ClientError as e:
-				print e.response
-
-
-
-
-#
-#Object get ops
-#
-
-
-def get_slew_object_ops(cName,objKey):
-	#first lets build and print out the list of avail ops
-
-	print "+++++++++++++++++"
-	method_list = dir(s3client)
-	# we'll want a regex to filter for the ones we want.
-	get_bucket_Re = re.compile('^get_object')
-	
-
-	for method in method_list:
-		if get_bucket_Re.match(method):
-			print method
-			callable_method = getattr(s3client, method)
-			try:
-				response = callable_method(
-					Bucket=cName,
-					Key=objKey
-					)
-				print response
-			except botocore.exceptions.ClientError as e:
-				print e.response
-
-#
-# Bucket put ops .  Can't quite iterate through like we did with
-# the 'gets'.  So...here goes..
-#
-
-
-def put_bucket_acl(cName):
 	print "+++++++++++++++++"
 	
 	try:
-		response = s3client.put_bucket_acl(
-			ACL='private',
-			AccessControlPolicy={
-		        'Grants': [
-		            {
-		                'Grantee': {
-		                    'DisplayName': 'dorkface',
-		                    'EmailAddress': 'dork@dork.com',
-		                    'Type': 'CanonicalUser',
-		                    'ID': 'apkey'
-		                },
-		                'Permission': 'FULL_CONTROL'
-		            },
-		        ],
-		        'Owner': {
-		            'DisplayName': 'igneous',
-		            'ID': 'igneous'
-		        }
-		    },
-			Bucket=cName
-			)
+		response = s3client.restore_object(
+			Bucket=cName,
+		    Key=objKey,
+		    VersionId='1',
+		    RequestPayer='requester'
+		)
 
 		print response
 	except botocore.exceptions.ClientError as e:
 		print e.response
+
+def upload_file(cName):
+	#
+	try:
+		response = s3client.upload_file(
+			'/tmp/hello.txt', 
+			cName,
+			'hello.txt'
+			)
+		print response
+	except botocore.exceptions.ClientError as e:
+		print e.response
+
+
+
+
+
+
 
 
 
@@ -378,31 +722,41 @@ print cName
 
 
 
-#head_bucket(cName)
-get_bucket_acl(cName)
-list_objects(cName)
-
-objKey = put_object_basic(cName)
-
-put_object_with_acl(cName)
-put_object_acl(objKey,cName)
-
-get_slew_bucket_ops(cName)
-get_slew_object_ops(cName,objKey)
-
-
-
-#TODO: 
+# head_bucket(cName)
+# put_bucket_acl(cName)
+# get_bucket_acl(cName)
+# put_bucket_cors(cName)
+# put_bucket_lifecycle_configuration(cName)
+# put_bucket_logging(cName)
+# put_bucket_notification_configuration(cName)
+# put_bucket_policy(cName)
+# put_bucket_replication(cName)
+# put_bucket_request_payment(cName)
+# put_bucket_tagging(cName)
+# put_bucket_versioning(cName)
+# put_bucket_website(cName)
 
 
-# * put to a bucket/key
-# * get from a bucket/key
-# * get info from an object
-# * get acl on an object
-# * 
-# * check acl on bucket
-# * create bucket with acl
-# * overlay acl
+#objKey = put_object_basic(cName)
+#print objKey
+
+#get_slew_bucket_ops(cName)
+#list_multipart_uploads(cName)
+#list_object_versions(cName)
+#list_objects(cName)
+#list_parts(cName,objKey)
+#restore_object(cName,objKey)
+upload_file(cName)
+
+
+
+
+#put_object_with_acl(cName)
+#put_object_acl(objKey,cName)
+
+
+#get_slew_object_ops(cName,objKey)
+#head_object(cName,objKey)
 
 
 
