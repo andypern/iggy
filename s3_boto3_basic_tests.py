@@ -3,6 +3,7 @@
 import boto3
 import botocore
 
+import xml.etree
 from datetime import datetime
 import time
 import os
@@ -506,6 +507,20 @@ def put_bucket_website(cName):
 	except botocore.exceptions.ClientError as e:
 		print e.response
 
+def delete_bucket(cName):
+	print '+++delete_bucket+++'
+	
+	try:
+		response = s3client.delete_bucket(
+		    Bucket=cName
+		)
+
+		print response
+	except botocore.exceptions.ClientError as e:
+		print e.response
+
+
+
 
 
 #
@@ -659,7 +674,7 @@ def restore_object(cName,objKey):
 	#note: we do have versions, but i'll just see how we handle request 
 	# before i put a 'real' archived version in here
 	#
-	print "+++++++++++++++++"
+	print '+++restore_object+++'
 	
 	try:
 		response = s3client.restore_object(
@@ -674,16 +689,139 @@ def restore_object(cName,objKey):
 		print e.response
 
 def upload_file(cName):
-	#
+	print '+++upload_file+++'
+	objKey = "upload-" + (''.join(choice(ascii_uppercase) for i in range(6))) + '.txt'
+
 	try:
 		response = s3client.upload_file(
 			'/tmp/hello.txt', 
 			cName,
-			'hello.txt'
+			objKey
 			)
 		print response
 	except botocore.exceptions.ClientError as e:
 		print e.response
+
+
+def create_multipart_upload(cName):
+	print '+++create_multipart_upload+++'
+	objKey = "multipart-" + (''.join(choice(ascii_uppercase) for i in range(6)))
+
+	try:
+		response = s3client.create_multipart_upload(
+	    Bucket=cName,
+	    Key=objKey,
+	)
+		print response
+	except botocore.exceptions.ClientError as e:
+		print e.response
+
+
+def upload_part(cName):
+	print '+++upload_part+++'
+	objKey = "multipart-" + (''.join(choice(ascii_uppercase) for i in range(6)))
+
+	try:
+		response = s3client.upload_part(
+		    Body=b'randombytes',
+		    Bucket=cName,
+		    Key='fake_file',
+		    PartNumber=2,
+		    UploadId='1234',
+		)
+		print response
+	except botocore.exceptions.ClientError as e:
+		print e.response
+
+
+
+
+def upload_part_copy(cName,objKey):
+	print '+++upload_part_copy+++'
+	newKey = "multipart-copy-" + (''.join(choice(ascii_uppercase) for i in range(6)))
+
+	try:
+		response = s3client.upload_part_copy(
+	        Bucket=cName,
+		    CopySource={'Bucket': cName, 'Key': objKey, 'VersionId': '1'},
+		    Key=newKey,
+		    PartNumber=1,
+		    UploadId='12345'
+		)
+
+		print response
+	except botocore.exceptions.ClientError as e:
+		print e.response
+	except xml.etree.cElementTree.ParseError as e:
+		print "we got a 200 , but had an error that we couldn't resolve : %s" %(e)
+
+
+
+
+def abort_multipart_upload(cName,objKey):
+	print '+++abort_multipart_upload+++'
+	
+	try:
+		response = s3client.abort_multipart_upload(
+		    Bucket=cName,
+		    Key=objKey,
+		    UploadId='1234',
+		    RequestPayer='requester'
+		)
+
+		print response
+	except botocore.exceptions.ClientError as e:
+		print e.response
+
+
+
+def complete_multipart_upload(cName,objKey):
+	print '+++complete_multipart_upload+++'
+	
+	try:
+		response = s3client.complete_multipart_upload(
+		    Bucket=cName,
+		    Key=objKey,
+		    UploadId='1234'
+		)
+
+		print response
+	except botocore.exceptions.ClientError as e:
+		print e.response
+
+def copy_object(cName,objKey):
+	print '+++copy_object+++'
+	newKey = "copy-object-" + (''.join(choice(ascii_uppercase) for i in range(6)))
+
+	
+	try:
+		response = s3client.copy_object(
+		    Bucket=cName,
+		    CopySource={'Bucket': cName, 'Key': objKey, 'VersionId': '1'},
+		    Key=newKey
+		)
+
+		print response
+	except botocore.exceptions.ClientError as e:
+		print e.response
+	except xml.etree.cElementTree.ParseError as e:
+		print "we got a 200 , but had an error that we couldn't resolve : %s" %(e)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -711,10 +849,18 @@ s3client = make_session()
 #
 #
 ##this one is if you want to operate against the first 
-##bucket in the list (loadgen-bucket typicallly on topo12)
+##bucket in the list (loadgen-bucket typicallly on topo12). don't use for 'delete_bucket'
 #
 cName = list_buckets()['Buckets'][0]['Name']
 print cName
+
+#
+#if you want to use 'delete_bucket', then uncomment following
+#
+cName = list_buckets()['Buckets'][-1]['Name']
+print cName
+
+
 #
 #
 #####
@@ -736,9 +882,19 @@ print cName
 # put_bucket_versioning(cName)
 # put_bucket_website(cName)
 
+#delete_bucket(cName)
+
+#########
+#
+#if you want to run any object related things, make sure the following line is
+# uncommented.
 
 #objKey = put_object_basic(cName)
 #print objKey
+
+
+#print "go check shit"
+#time.sleep(30)
 
 #get_slew_bucket_ops(cName)
 #list_multipart_uploads(cName)
@@ -746,7 +902,13 @@ print cName
 #list_objects(cName)
 #list_parts(cName,objKey)
 #restore_object(cName,objKey)
-upload_file(cName)
+#upload_file(cName)
+#create_multipart_upload(cName)
+#upload_part(cName)
+#upload_part_copy(cName,objKey)
+#abort_multipart_upload(cName,objKey)
+#complete_multipart_upload(cName,objKey)
+#copy_object(cName,objKey)
 
 
 
