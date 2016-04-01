@@ -25,8 +25,8 @@ from random import choice
 
 
 ###############
-# some variables you will want to set. If not, you need to specify arg's
-# see next section
+# some variables, probably want to handle this differently in the future. 
+#
 #
 prefix = 'http://'
 
@@ -38,8 +38,7 @@ prefix = 'http://'
 
 
 #
-#provide some CLI options.  If they aren't set, we assume
-# variables in the previous section are to be used.
+#provide some CLI options.  
 #
 
 try:
@@ -63,11 +62,15 @@ for opt, arg in opts:
 		secret_key = arg
 
 
-
-
+if len(opts) < 4:
+	print "syntax is `./s3_boto3_shortlist.py -h <hostname> -p 80 -a <access_key> -s <secret_key>`"
+	sys.exit(1)
 
 
 def make_session():
+#
+#note: the signature_version & addressing style variables are key
+#
 
 	session = boto3.session.Session()
 
