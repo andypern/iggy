@@ -9,12 +9,18 @@ import xml.etree
 
 import sys
 import getopt
+import re
 from string import ascii_uppercase
 from random import choice
 
 
 
-
+#README 1st
+#  * make sure you have boto3 , version 1.3.0 installed (pip works)
+#  * before running, create a new container and give your key access to it.
+#  * syntax is './s3_boto3_shortlist.py -h <hostname> -p 80 -a <access_key> -s <secret_key>'
+#
+#
 
 
 
@@ -84,10 +90,7 @@ def make_session():
 
 
 
-######Bucket ops#####
-#
-#
-#
+
 
 def list_buckets():
 	#
@@ -100,30 +103,7 @@ def list_buckets():
 		print e.message
 		sys.exit(0)
 
-
-	#print len(response['Buckets'])
-
 	return(response)
-
-
-def create_bucket():
-
-	print "+++create_bucket+++"
-	#
-	#make a bucket
-	#
-	# make the container name random
-	cName = "test-" + (''.join(choice(ascii_uppercase) for i in range(12)))
-	try:
-		response = s3client.create_bucket(
-			Bucket=cName,
-			ACL='public-read-write',
-			GrantFullControl='apkey',
-			)
-		print response
-		return cName
-	except botocore.exceptions.ClientError as e:
-		print e.response
 
 
 #
@@ -302,6 +282,7 @@ bucket_list = list_buckets()
 cName = bucket_list['Buckets'][-1]['Name']
 print cName
 objKey = put_object_basic(cName)
+
 put_object_acl(objKey,cName)
 upload_part(cName)
 upload_part_copy(cName,objKey)
