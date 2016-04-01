@@ -166,6 +166,7 @@ def create_bucket():
 
 def head_bucket(cName):
 
+	print "+++head_bucket+++"
 	#HEAD first :)  this fails if we don't set an acl at create time
 	try:
 		s3client.head_bucket(Bucket=cName)
@@ -177,7 +178,7 @@ def head_bucket(cName):
 
 def get_bucket_acl(cName):
 	#get the bucket acl
-	print "+++++++++++++++++"
+	print "+++get_bucket_acl+++"
 	try:
 		acl = s3client.get_bucket_acl(
 			Bucket=cName)
@@ -188,7 +189,7 @@ def get_bucket_acl(cName):
 
 def list_objects(cName):		 
 	#list what's inside
-	print "+++++++++++++++++"
+	print "+++list_objects+++"
 	try:
 		objList = s3client.list_objects(
 			Bucket=cName,
@@ -208,7 +209,7 @@ def get_slew_bucket_ops(cName):
 	#
 
 	#first, build a list of methods
-	print "+++++++++++++++++"
+	print "+get_slew_bucket_ops+"
 	method_list = dir(s3client)
 	# we'll want a regex to filter for the ones we want.
 	regex = re.compile('^get_bucket')
@@ -309,41 +310,41 @@ def put_bucket_lifecycle_configuration(cName):
 	
 	try:
 		response = s3client.put_bucket_lifecycle_configuration(
-    Bucket=cName,
-    LifecycleConfiguration={
-        'Rules': [
-            {
-                'Expiration': {
-                    'Date': datetime(2015, 1, 1),
-                    'Days': 123,
-                    'ExpiredObjectDeleteMarker': True|False
-                },
-                'ID': 'configrule',
-                'Prefix': 'logs/',
-                'Status': 'Enabled',
-                'Transitions': [
-                    {
-                        'Date': datetime(2015, 1, 1),
-                        'Days': 123,
-                        'StorageClass': 'STANDARD_IA'
-                    },
-                ],
-                'NoncurrentVersionTransitions': [
-                    {
-                        'NoncurrentDays': 123,
-                        'StorageClass': 'STANDARD_IA'
-                    },
-                ],
-                'NoncurrentVersionExpiration': {
-                    'NoncurrentDays': 123
-                },
-                'AbortIncompleteMultipartUpload': {
-                    'DaysAfterInitiation': 123
-                }
-            },
-        ]
-    }
-)
+		    Bucket=cName,
+		    LifecycleConfiguration={
+		        'Rules': [
+		            {
+		                'Expiration': {
+		                    'Date': datetime(2015, 1, 1),
+		                    'Days': 123,
+		                    'ExpiredObjectDeleteMarker': True|False
+		                },
+		                'ID': 'configrule',
+		                'Prefix': 'logs/',
+		                'Status': 'Enabled',
+		                'Transitions': [
+		                    {
+		                        'Date': datetime(2015, 1, 1),
+		                        'Days': 123,
+		                        'StorageClass': 'STANDARD_IA'
+		                    },
+		                ],
+		                'NoncurrentVersionTransitions': [
+		                    {
+		                        'NoncurrentDays': 123,
+		                        'StorageClass': 'STANDARD_IA'
+		                    },
+		                ],
+		                'NoncurrentVersionExpiration': {
+		                    'NoncurrentDays': 123
+		                },
+		                'AbortIncompleteMultipartUpload': {
+		                    'DaysAfterInitiation': 123
+		                }
+		            },
+		        ]
+		    }
+		)
 
 		print response
 	except botocore.exceptions.ClientError as e:
@@ -555,7 +556,7 @@ def delete_slew_bucket_ops(cName):
 def get_slew_object_ops(cName,objKey):
 	#first lets build and print out the list of avail ops
 
-	print "+++++++++++++++++"
+	print "+get_slew_object_ops+"
 	method_list = dir(s3client)
 	# we'll want a regex to filter for the ones we want.
 	regex = re.compile('^get_object')
@@ -577,7 +578,7 @@ def get_slew_object_ops(cName,objKey):
 
 
 def head_object(cName,objKey):
-	print "+++++++++++++++++"
+	print "+++head_object+++"
 	try:
 		response = s3client.head_object(
 			Bucket=cName,
@@ -611,7 +612,7 @@ def list_parts(cName,objKey):
 
 
 def download_file(cName,objKey):
-	print "+++++++++++++++++"
+	print "+++download_file+++"
 	try:
 		response = s3client.download_file(
 			Bucket=cName,
@@ -633,7 +634,7 @@ def put_object_basic(cName):
 	#
 	#basic object put, nothing special
 	#
-	print "+++++++++++++++++"
+	print "+++put_object_basic+++"
 	objKey = "file-" + (''.join(choice(ascii_uppercase) for i in range(6)))
 
 	try:
@@ -682,7 +683,7 @@ def put_object_acl(objKey,cName):
 	#
 	#slightly different, we need to do this against an existing object
 	#
-	print "+++++++++++++++++"
+	print "+++put_object_acl+++"
 
 	try:
 		response = s3client.put_object_acl(
@@ -938,19 +939,19 @@ print cName
 
 
 
-# head_bucket(cName)
-# put_bucket_acl(cName)
-# get_bucket_acl(cName)
-# put_bucket_cors(cName)
-# put_bucket_lifecycle_configuration(cName)
-# put_bucket_logging(cName)
-# put_bucket_notification_configuration(cName)
-# put_bucket_policy(cName)
-# put_bucket_replication(cName)
-# put_bucket_request_payment(cName)
-# put_bucket_tagging(cName)
-# put_bucket_versioning(cName)
-# put_bucket_website(cName)
+head_bucket(cName)
+put_bucket_acl(cName)
+get_bucket_acl(cName)
+put_bucket_cors(cName)
+put_bucket_lifecycle_configuration(cName)
+put_bucket_logging(cName)
+put_bucket_notification_configuration(cName)
+put_bucket_policy(cName)
+put_bucket_replication(cName)
+put_bucket_request_payment(cName)
+put_bucket_tagging(cName)
+put_bucket_versioning(cName)
+put_bucket_website(cName)
 
 
 #delete_slew_bucket_ops(cName)
@@ -966,7 +967,7 @@ print cName
 
 #maybe you want to make a lot of files
 
-put_object_lots(cName)
+#put_object_lots(cName)
 
 #if you want to delete multiple objects, use this:
 
