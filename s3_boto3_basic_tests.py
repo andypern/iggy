@@ -19,7 +19,7 @@ from random import choice
 
 #TODO: 
 
-
+# * create a print function that can be called by each function
 # * make a way to specify which tests you want to run, eg:
 # - --tests put_bucket_acl,put_object_acl , etc
 # * make a flag that runs all tests, instead of hand-calling them
@@ -88,6 +88,15 @@ if len(opts) < 4:
 
 
 
+
+# def print_simple(response):
+# 	#
+# 	#this is mainly so we have a consistent way to print shit
+# 	#
+# 	pprint.pprint(response)
+
+
+
 	#
 	#build the client session.  Note the signature version
 	# is required to be 's3' at this time. 
@@ -97,7 +106,7 @@ def make_session():
 
 	session = boto3.session.Session()
 
-	s3client = session.client('s3',
+	response = s3client = session.client('s3',
 			aws_access_key_id = access_key,
 	        aws_secret_access_key = secret_key,
 			endpoint_url=prefix + host + ':' + port,
@@ -109,6 +118,7 @@ def make_session():
 				read_timeout=60,
 				s3={'addressing_style': 'path'})
 			)
+	print_simple(response)
 
 	
 	return s3client
@@ -139,19 +149,19 @@ def list_buckets():
 
 def create_bucket():
 
-
+	print "+++create_bucket+++"
 	#
 	#make a bucket
 	#
 	# make the container name random
 	cName = "test-" + (''.join(choice(ascii_uppercase) for i in range(12)))
 	try:
-		s3client.create_bucket(
+		response = s3client.create_bucket(
 			Bucket=cName,
 			ACL='public-read-write',
 			GrantFullControl='apkey',
 			)
-		print "made bucket"
+		print response
 		return cName
 	except botocore.exceptions.ClientError as e:
 		print e.response
@@ -941,19 +951,21 @@ print cName
 
 
 
-head_bucket(cName)
-put_bucket_acl(cName)
-get_bucket_acl(cName)
-put_bucket_cors(cName)
-put_bucket_lifecycle_configuration(cName)
-put_bucket_logging(cName)
-put_bucket_notification_configuration(cName)
-put_bucket_policy(cName)
-put_bucket_replication(cName)
-put_bucket_request_payment(cName)
-put_bucket_tagging(cName)
-put_bucket_versioning(cName)
-put_bucket_website(cName)
+# head_bucket(cName)
+#put_bucket_acl(cName)
+
+
+# get_bucket_acl(cName)
+# put_bucket_cors(cName)
+# put_bucket_lifecycle_configuration(cName)
+# put_bucket_logging(cName)
+# put_bucket_notification_configuration(cName)
+# put_bucket_policy(cName)
+# put_bucket_replication(cName)
+# put_bucket_request_payment(cName)
+# put_bucket_tagging(cName)
+# put_bucket_versioning(cName)
+# put_bucket_website(cName)
 
 
 #delete_slew_bucket_ops(cName)
@@ -965,7 +977,7 @@ put_bucket_website(cName)
 # uncommented.
 
 objKey = put_object_basic(cName)
-print objKey
+#print objKey
 
 #maybe you want to make a lot of files
 
@@ -973,45 +985,47 @@ print objKey
 
 #if you want to delete multiple objects, use this:
 
-objList = list_objects(cName)
+#objList = list_objects(cName)
 #pprint.pprint(objList)
 
 
 
-put_object_with_acl(cName)
+# put_object_with_acl(cName)
+
 put_object_acl(objKey,cName)
 
 
-get_slew_bucket_ops(cName)
+# get_slew_bucket_ops(cName)
 
-list_multipart_uploads(cName)
-list_object_versions(cName)
-list_objects(cName)
-list_parts(cName,objKey)
-restore_object(cName,objKey)
+# list_multipart_uploads(cName)
+# list_object_versions(cName)
+# list_objects(cName)
+# list_parts(cName,objKey)
+# restore_object(cName,objKey)
 
-upload_file(cName)
+# upload_file(cName)
 
 
 #if you want to download a file and validate its contents, use this
-dlFile = upload_file(cName)
+# dlFile = upload_file(cName)
 
 
-download_file(cName,dlFile)
+# download_file(cName,dlFile)
 
-create_multipart_upload(cName)
+# create_multipart_upload(cName)
 upload_part(cName)
 upload_part_copy(cName,objKey)
 abort_multipart_upload(cName,objKey)
 complete_multipart_upload(cName,objKey)
+
 copy_object(cName,objKey)
 
-delete_object(cName,objKey)
-delete_objects(cName,objList)
+# delete_object(cName,objKey)
+# delete_objects(cName,objList)
 
 
-get_slew_object_ops(cName,objKey)
-head_object(cName,objKey)
+# get_slew_object_ops(cName,objKey)
+# head_object(cName,objKey)
 
 
 
