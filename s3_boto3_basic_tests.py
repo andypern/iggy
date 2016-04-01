@@ -964,8 +964,8 @@ put_bucket_website(cName)
 #if you want to run any object related things, make sure the following line is
 # uncommented.
 
-#objKey = put_object_basic(cName)
-#print objKey
+objKey = put_object_basic(cName)
+print objKey
 
 #maybe you want to make a lot of files
 
@@ -973,45 +973,45 @@ put_bucket_website(cName)
 
 #if you want to delete multiple objects, use this:
 
-#objList = list_objects(cName)
+objList = list_objects(cName)
 #pprint.pprint(objList)
 
 
 
-#put_object_with_acl(cName)
-#put_object_acl(objKey,cName)
+put_object_with_acl(cName)
+put_object_acl(objKey,cName)
 
 
-#get_slew_bucket_ops(cName)
+get_slew_bucket_ops(cName)
 
-#list_multipart_uploads(cName)
-#list_object_versions(cName)
-#list_objects(cName)
-#list_parts(cName,objKey)
-#restore_object(cName,objKey)
+list_multipart_uploads(cName)
+list_object_versions(cName)
+list_objects(cName)
+list_parts(cName,objKey)
+restore_object(cName,objKey)
 
-#upload_file(cName)
+upload_file(cName)
 
 
 #if you want to download a file and validate its contents, use this
-#dlFile = upload_file(cName)
+dlFile = upload_file(cName)
 
 
-#download_file(cName,dlFile)
+download_file(cName,dlFile)
 
-#create_multipart_upload(cName)
-#upload_part(cName)
-#upload_part_copy(cName,objKey)
-#abort_multipart_upload(cName,objKey)
-#complete_multipart_upload(cName,objKey)
-#copy_object(cName,objKey)
+create_multipart_upload(cName)
+upload_part(cName)
+upload_part_copy(cName,objKey)
+abort_multipart_upload(cName,objKey)
+complete_multipart_upload(cName,objKey)
+copy_object(cName,objKey)
 
-#delete_object(cName,objKey)
-#delete_objects(cName,objList)
+delete_object(cName,objKey)
+delete_objects(cName,objList)
 
 
-#get_slew_object_ops(cName,objKey)
-#head_object(cName,objKey)
+get_slew_object_ops(cName,objKey)
+head_object(cName,objKey)
 
 
 
