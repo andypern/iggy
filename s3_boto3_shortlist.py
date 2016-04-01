@@ -301,7 +301,6 @@ s3client = make_session()
 bucket_list = list_buckets()
 cName = bucket_list['Buckets'][-1]['Name']
 print cName
-put_bucket_lifecycle_configuration(cName)
 objKey = put_object_basic(cName)
 put_object_acl(objKey,cName)
 upload_part(cName)
