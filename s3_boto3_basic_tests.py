@@ -118,7 +118,7 @@ def make_session():
 				read_timeout=60,
 				s3={'addressing_style': 'path'})
 			)
-	print_simple(response)
+	#print_simple(response)
 
 	
 	return s3client
