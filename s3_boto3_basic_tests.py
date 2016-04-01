@@ -349,8 +349,8 @@ def put_bucket_lifecycle_configuration(cName):
 		print response
 	except botocore.exceptions.ClientError as e:
 		print e.response
-	except:
-		print "some error, move on"
+	except botocore.exceptions.ParamValidationError as e:
+		print "error before sending request : %s" % (e)
 
 def put_bucket_logging(cName):
 	print '+++put_bucket_logging+++'
