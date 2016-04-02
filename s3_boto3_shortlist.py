@@ -87,7 +87,7 @@ def make_session():
 				s3={'addressing_style': 'path'})
 			)
 	#print_simple(response)
-
+	
 
 	return s3client
 

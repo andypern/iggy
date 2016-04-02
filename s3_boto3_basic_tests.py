@@ -23,7 +23,7 @@ from random import choice
 # * make a way to specify which tests you want to run, eg:
 # - --tests put_bucket_acl,put_object_acl , etc
 # * make a flag that runs all tests, instead of hand-calling them
-# * 
+# * figure out how to get the full responses for successes (eg: payload of get_bucket_acl , etc)
 
 
 
@@ -41,6 +41,7 @@ port = "7070"
 ##################
 
 
+print_verbose = False
 
 #
 #provide some CLI options.  If they aren't set, we assume
@@ -48,8 +49,8 @@ port = "7070"
 #
 
 try:
-        opts, args = getopt.getopt(sys.argv[1:], "h:p:a:s:", ["host=","port=","access_key=",
-        	"secret_key"])
+        opts, args = getopt.getopt(sys.argv[1:], "h:p:a:s:v", ["host=","port=","access_key=",
+        	"secret_key","verbose"])
 except getopt.GetoptError as err:
         # print help information and exit:
         print(err) # will print something like "option -a not recognized"
@@ -66,6 +67,9 @@ for opt, arg in opts:
 		access_key = arg
 	if opt in ('-s','--secret_key'):
 		secret_key = arg
+	if opt in ('-v', '--verbose'):
+		print_verbose = True
+
 
 
 
@@ -89,11 +93,31 @@ if len(opts) < 4:
 
 
 
-# def print_simple(response):
-# 	#
-# 	#this is mainly so we have a consistent way to print shit
-# 	#
-# 	pprint.pprint(response)
+def printfail(method,response):
+	#
+	#this is mainly so we have a consistent way to print shit
+ 	#
+ 	# for later: if there is the '-v' flag set by the user, print more verbose stuff.
+ 	#
+ 	if print_verbose == True:
+ 		print "%s : %s" % (method,response)
+ 	else:
+		print "%s : %s" % (method,response['ResponseMetadata']['HTTPStatusCode'])
+
+
+def printsuccess(method,response):
+	#
+	#this is mainly so we have a consistent way to print shit
+ 	#
+ 	# for later: if there is the '-v' flag set by the user, print more verbose stuff.
+ 	#
+ 	if print_verbose == True:
+ 		print "%s : %s" % (method,response)
+ 	else:
+ 		try:
+	 		print "%s : %s" % (method,response['ResponseMetadata']['HTTPStatusCode'])
+ 		except TypeError as e:
+ 			print "%s : 200 , but had TypeError : %s" %(method,e)
 
 
 
@@ -118,9 +142,7 @@ def make_session():
 				read_timeout=60,
 				s3={'addressing_style': 'path'})
 			)
-	#print_simple(response)
 
-	
 	return s3client
 
 
@@ -176,37 +198,29 @@ def create_bucket():
 
 def head_bucket(cName):
 
-	print "+++head_bucket+++"
+	method = "HEAD Bucket"
 	#HEAD first :)  this fails if we don't set an acl at create time
 	try:
-		s3client.head_bucket(Bucket=cName)
+		response = s3client.head_bucket(Bucket=cName)
+		printsuccess(func,response)
 	except botocore.exceptions.ClientError as e:
-		error_code = int(e.response['Error']['Code'])
-		#print error_code
-		print e.response
+		#print dir(e)
+		#print e.response
+		#error_code = int(e.response['Error']['Code'])
+		printfail(method,e.response)
 
-
-def get_bucket_acl(cName):
-	#get the bucket acl
-	print "+++get_bucket_acl+++"
-	try:
-		acl = s3client.get_bucket_acl(
-			Bucket=cName)
-		print acl
-
-	except botocore.exceptions.ClientError as e:
-		print e.response
 
 def list_objects(cName):		 
 	#list what's inside
-	print "+++list_objects+++"
+	method = 'list_objects'
 	try:
 		objList = s3client.list_objects(
 			Bucket=cName,
 			MaxKeys=100)
+		printsuccess(method,objList)
 		return objList
 	except botocore.exceptions.ClientError as e:
-		print e.response
+		printfail(method,e.response)
 
 
 
@@ -219,7 +233,6 @@ def get_slew_bucket_ops(cName):
 	#
 
 	#first, build a list of methods
-	print "+get_slew_bucket_ops+"
 	method_list = dir(s3client)
 	# we'll want a regex to filter for the ones we want.
 	regex = re.compile('^get_bucket')
@@ -227,39 +240,39 @@ def get_slew_bucket_ops(cName):
 
 	for method in method_list:
 		if regex.match(method):
-			print method
 			callable_method = getattr(s3client, method)
 			try:
 				response = callable_method(
 					Bucket=cName
 					)
-				print response
+				#print "%s , %s" %(method,response)
+				printsuccess(method,response)
 			except botocore.exceptions.ClientError as e:
-				print e.response
+				printfail(method,e.response)
 
 def list_multipart_uploads(cName):
 	#this is actually a bucket level op
-	print '+++list_multipart_uploads+++'
+	method = 'list_multipart_uploads'
 
 	try:
 		response = s3client.list_multipart_uploads(
 	    Bucket=cName
 		)
-		print response
+		printsuccess(method,response)
 	except botocore.exceptions.ClientError as e:
-		print e.response
+		printfail(method,e.response)
 
 def list_object_versions(cName):
 	#this is another bucket op
-	print '+++list_object_versions+++'
+	method = 'list_object_versions'
 
 	try:
 		response = s3client.list_object_versions(
 	    Bucket=cName
 		)
-		pprint.pprint(response)
+		printsuccess(method,response)
 	except botocore.exceptions.ClientError as e:
-		print e.response
+		printfail(method,e.response)
 
 
 #
@@ -269,21 +282,19 @@ def list_object_versions(cName):
 
 
 def put_bucket_acl(cName):
-	print '+++put_bucket_acl+++'
-	
+	method = 'put_bucket_acl'
 	try:
 		response = s3client.put_bucket_acl(
 			ACL='private',
 			Bucket=cName
 			)
 
-		print response
+		printsuccess(method,response)
 	except botocore.exceptions.ClientError as e:
-		print e.response
+		printfail(method,e.response)
 
 def put_bucket_cors(cName):
-	print '+++put_bucket_cors+++'
-	
+	method = 'put_bucket_cors'
 	try:
 		response = s3client.put_bucket_cors(
 		    Bucket=cName,
@@ -309,15 +320,14 @@ def put_bucket_cors(cName):
 
 		)
 
-		print response
+		printsuccess(method,response)
 	except botocore.exceptions.ClientError as e:
-		print e.response
+		printfail(method,e.response)
 
 
 
 def put_bucket_lifecycle_configuration(cName):
-	print '+++put_bucket_lifecycle_configuration+++'
-	
+	method = 'put_bucket_lifecycle_configuration'
 	try:
 		response = s3client.put_bucket_lifecycle_configuration(
 		    Bucket=cName,
@@ -356,15 +366,14 @@ def put_bucket_lifecycle_configuration(cName):
 		    }
 		)
 
-		print response
+		printsuccess(method,response)
 	except botocore.exceptions.ClientError as e:
-		print e.response
+		printfail(method,e.response)
 	except botocore.exceptions.ParamValidationError as e:
-		print "error before sending request : %s" % (e)
+		print "%s : error before sending request : %s" % (method,e)
 
 def put_bucket_logging(cName):
-	print '+++put_bucket_logging+++'
-	
+	method = 'put_bucket_logging'
 	try:
 		response = s3client.put_bucket_logging(
 		    Bucket=cName,
@@ -387,42 +396,39 @@ def put_bucket_logging(cName):
 		    },
 		)
 
-		print response
+		printsuccess(method,response)
 	except botocore.exceptions.ClientError as e:
-		print e.response
+		printfail(method,e.response)
 
 
 
 
 def put_bucket_notification_configuration(cName):
-	print '+++put_bucket_notification_configuration+++'
-	
+	method = 'put_bucket_notification_configuration'
 	try:
 		response = s3client.put_bucket_notification_configuration(
 		    Bucket=cName,
 		    NotificationConfiguration={}
 		)
 
-		print response
+		printsuccess(method,response)
 	except botocore.exceptions.ClientError as e:
-		print e.response
+		printfail(method,e.response)
 
 def put_bucket_policy(cName):
-	print '+++put_bucket_policy+++'
-	
+	method = 'put_bucket_policy'
 	try:
 		response = s3client.put_bucket_policy(
 		    Bucket=cName,
 		    Policy='string'
 		)
 
-		print response
+		printsuccess(method,response)
 	except botocore.exceptions.ClientError as e:
-		print e.response
+		printfail(method,e.response)
 
 def put_bucket_replication(cName):
-	print '+++put_bucket_replication+++'
-	
+	method = 'put_bucket_replication'
 	try:
 		response = s3client.put_bucket_replication(
 		    Bucket=cName,
@@ -442,13 +448,12 @@ def put_bucket_replication(cName):
 		    }
 		)
 
-		print response
+		printsuccess(method,response)
 	except botocore.exceptions.ClientError as e:
-		print e.response
+		printfail(method,e.response)
 
 def put_bucket_request_payment(cName):
-	print '+++put_bucket_request_payment+++'
-	
+	method = 'put_bucket_request_payment'
 	try:
 		response = s3client.put_bucket_request_payment(
 		    Bucket=cName,
@@ -457,13 +462,12 @@ def put_bucket_request_payment(cName):
 		    }
 		)
 
-		print response
+		printsuccess(method,response)
 	except botocore.exceptions.ClientError as e:
-		print e.response
+		printfail(method,e.response)
 
 def put_bucket_tagging(cName):
-	print '+++put_bucket_tagging+++'
-	
+	method = 'put_bucket_tagging'
 	try:
 		response = s3client.put_bucket_tagging(
 		    Bucket=cName,
@@ -477,12 +481,12 @@ def put_bucket_tagging(cName):
 		    }
 		)
 
-		print response
+		printsuccess(method,response)
 	except botocore.exceptions.ClientError as e:
-		print e.response
+		printfail(method,e.response)
 
 def put_bucket_versioning(cName):
-	print '+++put_bucket_versioning+++'
+	method = 'put_bucket_versioning'
 	
 	try:
 		response = s3client.put_bucket_versioning(
@@ -493,12 +497,12 @@ def put_bucket_versioning(cName):
 		    }
 		)
 
-		print response
+		printsuccess(method,response)
 	except botocore.exceptions.ClientError as e:
-		print e.response
+		printfail(method,e.response)
 
 def put_bucket_website(cName):
-	print '+++put_bucket_website+++'
+	method = 'put_bucket_website'
 	
 	try:
 		response = s3client.put_bucket_website(
@@ -517,9 +521,9 @@ def put_bucket_website(cName):
 		    }
 		)
 
-		print response
+		print(method,response)
 	except botocore.exceptions.ClientError as e:
-		print e.response
+		printfail(method,e.response)
 
 def delete_slew_bucket_ops(cName):
 	
@@ -528,7 +532,6 @@ def delete_slew_bucket_ops(cName):
 	#
 
 	#first, build a list of methods
-	print "++++delete_slew_bucket_ops+++"
 	method_list = dir(s3client)
 	# we'll want a regex to filter for the ones we want.
 	regex = re.compile('^delete_bucket')
@@ -536,15 +539,14 @@ def delete_slew_bucket_ops(cName):
 
 	for method in method_list:
 		if regex.match(method):
-			print method
 			callable_method = getattr(s3client, method)
 			try:
 				response = callable_method(
 					Bucket=cName
 					)
-				print response
+				printsuccess(method,response)
 			except botocore.exceptions.ClientError as e:
-				print e.response
+				printfail(method,e.response)
 
 
 
@@ -568,7 +570,6 @@ def delete_slew_bucket_ops(cName):
 def get_slew_object_ops(cName,objKey):
 	#first lets build and print out the list of avail ops
 
-	print "+get_slew_object_ops+"
 	method_list = dir(s3client)
 	# we'll want a regex to filter for the ones we want.
 	regex = re.compile('^get_object')
@@ -583,60 +584,60 @@ def get_slew_object_ops(cName,objKey):
 					Bucket=cName,
 					Key=objKey
 					)
-				pprint.pprint(response)
+				printsuccess(method,response)
 			except botocore.exceptions.ClientError as e:
-				print e.response
+				printfail(method,e.response)
 
 
 
 def head_object(cName,objKey):
-	print "+++head_object+++"
+	method = 'head_object'
 	try:
 		response = s3client.head_object(
 			Bucket=cName,
 			Key=objKey)
-		print response
+		printsuccess(method,response)
 
 	except botocore.exceptions.ClientError as e:
 		error_code = int(e.response['Error']['Code'])
 		#print error_code
-		print e.response
+		printfail(method,e.response)
 
 def list_parts(cName,objKey):
 	#this is probably only valid if there are any multi-part uploads
 	# but it seems to work (empty list)
-
-	print "+++list_parts(%s , %s)+++" %(cName,objKey)
+	method = 'list_parts'
+	#print "+++list_parts(%s , %s)+++" %(cName,objKey)
 	try:
 		response = s3client.list_parts(
 			Bucket=cName,
 			Key=objKey,
 			UploadId='xyz')
-		print "ran"
+		printsuccess(method,response)
 		#print response
 
 	except botocore.exceptions.ClientError as e:
 		error_code = int(e.response['Error']['Code'])
 		#print error_code
-		print e.response
+		printfail(method,e.response)
 	except botocore.parsers.ResponseParserError as e:
-		print 'parser error: %s' %(e)
+		print '%s : parser error: %s' %(method,e)
 
 
 def download_file(cName,objKey):
-	print "+++download_file+++"
+	method = 'download_file'
 	try:
 		response = s3client.download_file(
 			Bucket=cName,
 			Key=objKey,
 			Filename='/tmp/goodbye.txt')
-		print response
+		printsuccess(method,response)
 
 
 	except botocore.exceptions.ClientError as e:
 		error_code = int(e.response['Error']['Code'])
 		#print error_code
-		print e.response
+		printfail(method,e.response)
 
 #
 #puts
@@ -646,7 +647,7 @@ def put_object_basic(cName):
 	#
 	#basic object put, nothing special
 	#
-	print "+++put_object_basic+++"
+	method = 'put_object_basic'
 	objKey = "file-" + (''.join(choice(ascii_uppercase) for i in range(6)))
 
 	try:
@@ -654,13 +655,14 @@ def put_object_basic(cName):
 			Body=b'xyz',
 			Bucket=cName,
 			Key=objKey)
-		print response
+		printsuccess(method,response)
 		return objKey
 	except botocore.exceptions.ClientError as e:
-		print e.response
+		printfail(method,e.response)
 
 def put_object_lots(cName):
-	keyCount = 10000
+	method = 'put_object_lots'
+	keyCount = 1000
 	for i in range(keyCount):
 		objKey = "file-" + '-' + str(i) + '-' + (''.join(choice(ascii_uppercase) for i in range(3))) 
 		try:
@@ -668,9 +670,9 @@ def put_object_lots(cName):
 			Body=b'xyz',
 			Bucket=cName,
 			Key=objKey)
-			print response
+			printsuccess(method,response)
 		except botocore.exceptions.ClientError as e:
-			print e.response
+			printfail(method,e.response)
 	print "Done making %s files" %(keyCount)
 
 
@@ -678,7 +680,7 @@ def put_object_with_acl(cName):
 	#
 	#put another object, this time force the ACL to be set
 	#
-	print "++++put_object_with_acl+++"
+	method = 'put_object_with_acl'
 	objKey = "file-acl-" + (''.join(choice(ascii_uppercase) for i in range(6)))
 
 	try:
@@ -687,15 +689,15 @@ def put_object_with_acl(cName):
 			Body=b'xyz',
 			Bucket=cName,
 			Key=objKey)
-		print response
+		printsuccess(method,response)
 	except botocore.exceptions.ClientError as e:
-		print e.response
+		printfail(method,e.response)
 
 def put_object_acl(objKey,cName):
 	#
 	#slightly different, we need to do this against an existing object
 	#
-	print "+++put_object_acl+++"
+	method = 'put_object_acl'
 
 	try:
 		response = s3client.put_object_acl(
@@ -720,16 +722,16 @@ def put_object_acl(objKey,cName):
 			Bucket=cName,
 			Key=objKey)
 
-		print response
+		printsuccess(method,response)
 	except botocore.exceptions.ClientError as e:
-		print e.response
+		printfail(method,e.response)
 
 def restore_object(cName,objKey):
 	#
 	#note: we do have versions, but i'll just see how we handle request 
 	# before i put a 'real' archived version in here
 	#
-	print '+++restore_object+++'
+	method = 'restore_object'
 	
 	try:
 		response = s3client.restore_object(
@@ -739,12 +741,12 @@ def restore_object(cName,objKey):
 		    RequestPayer='requester'
 		)
 
-		print response
+		printsuccess(method,response)
 	except botocore.exceptions.ClientError as e:
-		print e.response
+		printfail(method,e.response)
 
 def upload_file(cName):
-	print '+++upload_file+++'
+	method = 'upload_file'
 	objKey = "upload-" + (''.join(choice(ascii_uppercase) for i in range(6))) + '.txt'
 
 	try:
@@ -753,14 +755,14 @@ def upload_file(cName):
 			cName,
 			objKey
 			)
-		print response
+		printsuccess(method,response)
 		return objKey
 	except botocore.exceptions.ClientError as e:
-		print e.response
+		printfail(method,e.response)
 
 
 def create_multipart_upload(cName):
-	print '+++create_multipart_upload+++'
+	method = 'create_multipart_upload'
 	objKey = "multipart-" + (''.join(choice(ascii_uppercase) for i in range(6)))
 
 	try:
@@ -768,13 +770,13 @@ def create_multipart_upload(cName):
 	    Bucket=cName,
 	    Key=objKey,
 	)
-		print response
+		printsuccess(method,response)
 	except botocore.exceptions.ClientError as e:
-		print e.response
+		printfail(method,e.response)
 
 
 def upload_part(cName):
-	print '+++upload_part+++'
+	method = 'upload_part'
 	objKey = "multipart-" + (''.join(choice(ascii_uppercase) for i in range(6)))
 
 	try:
@@ -785,15 +787,15 @@ def upload_part(cName):
 		    PartNumber=2,
 		    UploadId='1234',
 		)
-		print response
+		printsuccess(method,response)
 	except botocore.exceptions.ClientError as e:
-		print e.response
+		printfail(method.e.response)
 
 
 
 
 def upload_part_copy(cName,objKey):
-	print '+++upload_part_copy+++'
+	method = 'upload_part_copy'
 	newKey = "multipart-copy-" + (''.join(choice(ascii_uppercase) for i in range(6)))
 
 	try:
@@ -805,17 +807,17 @@ def upload_part_copy(cName,objKey):
 		    UploadId='12345'
 		)
 
-		print response
+		printsuccess(method,response)
 	except botocore.exceptions.ClientError as e:
-		print e.response
+		printfail(method,e.response)
 	except xml.etree.cElementTree.ParseError as e:
-		print "we got a 200 , but had an error that we couldn't resolve : %s" %(e)
+		print " %s : we got a 200 , but had an error that we couldn't resolve : %s" %(method,e)
 
 
 
 
 def abort_multipart_upload(cName,objKey):
-	print '+++abort_multipart_upload+++'
+	method = 'abort_multipart_upload'
 	
 	try:
 		response = s3client.abort_multipart_upload(
@@ -825,15 +827,14 @@ def abort_multipart_upload(cName,objKey):
 		    RequestPayer='requester'
 		)
 
-		print response
+		printsuccess(method,response)
 	except botocore.exceptions.ClientError as e:
-		print e.response
+		printfail(method,e.response)
 
 
 
 def complete_multipart_upload(cName,objKey):
-	print '+++complete_multipart_upload+++'
-	
+	method = 'complete_multipart_upload'	
 	try:
 		response = s3client.complete_multipart_upload(
 		    Bucket=cName,
@@ -841,12 +842,12 @@ def complete_multipart_upload(cName,objKey):
 		    UploadId='1234'
 		)
 
-		print response
+		printsuccess(method,response)
 	except botocore.exceptions.ClientError as e:
-		print e.response
+		printfail(method,e.response)
 
 def copy_object(cName,objKey):
-	print '+++copy_object+++'
+	method = 'copy_object'
 	newKey = "copy-object-" + (''.join(choice(ascii_uppercase) for i in range(6)))
 
 	
@@ -857,16 +858,15 @@ def copy_object(cName,objKey):
 		    Key=newKey
 		)
 
-		print response
+		printsuccess(method,response)
 	except botocore.exceptions.ClientError as e:
-		print e.response
+		printfail(method,e.response)
 	except xml.etree.cElementTree.ParseError as e:
-		print "we got a 200 , but had an error that we couldn't resolve : %s" %(e)
+		print "%s : we got a 200 , but had an error that we couldn't resolve : %s" %(method,e)
 
 
 def delete_object(cName,objKey):
-	print '+++delete_object+++'
-
+	method = 'delete_object'
 	
 	try:
 		response = s3client.delete_object(
@@ -874,15 +874,15 @@ def delete_object(cName,objKey):
 		    Key=objKey
 		)
 
-		print response
+		printsuccess(method,response)
 	except botocore.exceptions.ClientError as e:
-		print e.response
+		printfail(method,e.response)
 
 
 
 
 def delete_objects(cName,objList):
-	print '+++delete_objects+++'
+	method = 'delete_objects'
 
 	objList['Contents'][0]['Key']
 	
@@ -898,9 +898,9 @@ def delete_objects(cName,objList):
 		        'Quiet': False
 		    },
 		)
-		print response
+		printsuccess(method,response)
 	except botocore.exceptions.ClientError as e:
-		print e.response
+		printfail(method,e.response)
 
 
 
@@ -932,7 +932,7 @@ bucket_list = list_buckets()
 
 #pprint.pprint(bucket_list)
 
-#cName = bucket_list['Buckets'][0]['Name']
+cName = bucket_list['Buckets'][0]['Name']
 
 #print cName
 
@@ -941,7 +941,7 @@ bucket_list = list_buckets()
 #
 
 cName = bucket_list['Buckets'][-1]['Name']
-print cName
+#print cName
 
 
 #
@@ -951,24 +951,24 @@ print cName
 
 
 
-# head_bucket(cName)
-#put_bucket_acl(cName)
+head_bucket(cName)
+put_bucket_acl(cName)
+get_slew_bucket_ops(cName)
 
 
-# get_bucket_acl(cName)
-# put_bucket_cors(cName)
-# put_bucket_lifecycle_configuration(cName)
-# put_bucket_logging(cName)
-# put_bucket_notification_configuration(cName)
-# put_bucket_policy(cName)
-# put_bucket_replication(cName)
-# put_bucket_request_payment(cName)
-# put_bucket_tagging(cName)
-# put_bucket_versioning(cName)
-# put_bucket_website(cName)
+put_bucket_cors(cName)
+put_bucket_lifecycle_configuration(cName)
+put_bucket_logging(cName)
+put_bucket_notification_configuration(cName)
+put_bucket_policy(cName)
+put_bucket_replication(cName)
+put_bucket_request_payment(cName)
+put_bucket_tagging(cName)
+put_bucket_versioning(cName)
+put_bucket_website(cName)
 
 
-#delete_slew_bucket_ops(cName)
+delete_slew_bucket_ops(cName)
 
 
 #########
@@ -985,34 +985,32 @@ objKey = put_object_basic(cName)
 
 #if you want to delete multiple objects, use this:
 
-#objList = list_objects(cName)
+objList = list_objects(cName)
 #pprint.pprint(objList)
 
 
 
-# put_object_with_acl(cName)
+put_object_with_acl(cName)
 
 put_object_acl(objKey,cName)
 
 
-# get_slew_bucket_ops(cName)
 
-# list_multipart_uploads(cName)
-# list_object_versions(cName)
-# list_objects(cName)
-# list_parts(cName,objKey)
-# restore_object(cName,objKey)
+list_multipart_uploads(cName)
+list_object_versions(cName)
+list_objects(cName)
+list_parts(cName,objKey)
+restore_object(cName,objKey)
 
-# upload_file(cName)
+upload_file(cName)
 
 
 #if you want to download a file and validate its contents, use this
-# dlFile = upload_file(cName)
+dlFile = upload_file(cName)
+download_file(cName,dlFile)
 
 
-# download_file(cName,dlFile)
-
-# create_multipart_upload(cName)
+create_multipart_upload(cName)
 upload_part(cName)
 upload_part_copy(cName,objKey)
 abort_multipart_upload(cName,objKey)
@@ -1020,12 +1018,12 @@ complete_multipart_upload(cName,objKey)
 
 copy_object(cName,objKey)
 
-# delete_object(cName,objKey)
-# delete_objects(cName,objList)
+delete_object(cName,objKey)
+delete_objects(cName,objList)
 
 
-# get_slew_object_ops(cName,objKey)
-# head_object(cName,objKey)
+get_slew_object_ops(cName,objKey)
+head_object(cName,objKey)
 
 
 
