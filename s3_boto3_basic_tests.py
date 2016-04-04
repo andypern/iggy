@@ -19,7 +19,6 @@ from random import choice
 
 #TODO: 
 
-# * create a print function that can be called by each function
 # * make a way to specify which tests you want to run, eg:
 # - --tests put_bucket_acl,put_object_acl , etc
 # * make a flag that runs all tests, instead of hand-calling them
@@ -32,9 +31,6 @@ from random import choice
 # see next section
 #
 prefix = 'http://'
-slab = "archer"
-suffix = ".iggy.bz"
-port = "7070"
 
 #
 # end of variables

@@ -4,31 +4,55 @@ import boto3
 
 import os
 import sys
+import getopt
 from botocore.exceptions import ClientError
 
 session = boto3.session.Session()
 
 ###############
-# some variables you will want to set
+# some variables need to be set. 
 #
 prefix = 'http://'
-slab = "archer"
-suffix = ".iggy.bz"
-port = ":7070"
 
 #
 # end of variables
 ##################
 
 
+print_verbose = False
+
 #
-# I setup my environment variables (eg: in .bashrc/.zshrc) 
-# such that I have a 'archer_ACCESS_KEY' etc
+#provide some CLI options.  
 #
 
-access_key =  os.environ.get(slab + "_ACCESS_KEY", None)
-secret_key = os.environ.get(slab + "_SECRET_KEY", None)
+try:
+        opts, args = getopt.getopt(sys.argv[1:], "h:p:a:s:v", ["host=","port=","access_key=",
+        	"secret_key","verbose"])
+except getopt.GetoptError as err:
+        # print help information and exit:
+        print(err) # will print something like "option -a not recognized"
+        print "wrong option"
+        sys.exit(2)
 
+
+for opt, arg in opts:
+	if opt in ('-h', '--host'):
+		host = arg
+	if opt in ('-p', '--port'):
+		port = arg
+	if opt in ('-a', '--access_key'):
+		access_key = arg
+	if opt in ('-s','--secret_key'):
+		secret_key = arg
+	if opt in ('-v', '--verbose'):
+		print_verbose = True
+
+
+
+
+if len(opts) < 4:
+	print "syntax is `./s3_boto3_shortlist.py -h <hostname> -p 80 -a <access_key> -s <secret_key>`"
+	sys.exit(1)
 
 
 #
@@ -36,16 +60,25 @@ secret_key = os.environ.get(slab + "_SECRET_KEY", None)
 # is required to be 's3' at this time. 
 #
 
-s3client = session.client('s3',
-		aws_access_key_id = access_key,
-        aws_secret_access_key = secret_key,
-		endpoint_url=prefix + slab + suffix + port,
-		config=boto3.session.Config(
-			signature_version='s3',
-			connect_timeout=60,
-			read_timeout=60,
-			s3={'addressing_style': 'path'})
-		)
+
+def make_session():
+
+	session = boto3.session.Session()
+
+	s3client = session.client('s3',
+			aws_access_key_id = access_key,
+	        aws_secret_access_key = secret_key,
+			endpoint_url=prefix + host + ':' + port,
+			use_ssl=False,
+			verify=False,
+			config=boto3.session.Config(
+				signature_version='s3',
+				connect_timeout=60,
+				read_timeout=60,
+				s3={'addressing_style': 'path'})
+			)
+
+	return s3client
 
 
 try:
