@@ -75,16 +75,8 @@ for opt, arg in opts:
 
 
 if len(opts) < 4:
-
-	#
-	# I setup my environment variables (eg: in .bashrc/.zshrc) 
-	# such that I have a 'archer_ACCESS_KEY' etc
-	#
-	access_key =  os.environ.get(slab + "_ACCESS_KEY", None)
-	secret_key = os.environ.get(slab + "_SECRET_KEY", None)
-	host = slab + suffix
-
-
+	print "syntax is `./s3_boto3_shortlist.py -h <hostname> -p 80 -a <access_key> -s <secret_key>`"
+	sys.exit(1)
 
 
 
@@ -96,9 +88,9 @@ def printfail(method,response):
  	# for later: if there is the '-v' flag set by the user, print more verbose stuff.
  	#
  	if print_verbose == True:
- 		print "%s : %s" % (method,response)
+ 		print "%s,%s" % (method,response)
  	else:
-		print "%s : %s" % (method,response['ResponseMetadata']['HTTPStatusCode'])
+		print "%s,%s" % (method,response['ResponseMetadata']['HTTPStatusCode'])
 
 
 def printsuccess(method,response):
@@ -108,10 +100,10 @@ def printsuccess(method,response):
  	# for later: if there is the '-v' flag set by the user, print more verbose stuff.
  	#
  	if print_verbose == True:
- 		print "%s : %s" % (method,response)
+ 		print "%s,%s" % (method,response)
  	else:
  		try:
-	 		print "%s : %s" % (method,response['ResponseMetadata']['HTTPStatusCode'])
+	 		print "%s,%s" % (method,response['ResponseMetadata']['HTTPStatusCode'])
  		except TypeError as e:
  			print "%s : 200 , but had TypeError : %s" %(method,e)
 
@@ -126,7 +118,7 @@ def make_session():
 
 	session = boto3.session.Session()
 
-	response = s3client = session.client('s3',
+	s3client = session.client('s3',
 			aws_access_key_id = access_key,
 	        aws_secret_access_key = secret_key,
 			endpoint_url=prefix + host + ':' + port,
