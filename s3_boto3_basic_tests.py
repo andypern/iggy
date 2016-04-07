@@ -75,7 +75,7 @@ for opt, arg in opts:
 
 
 if len(opts) < 4:
-	print "syntax is `./s3_boto3_shortlist.py -h <hostname> -p 80 -a <access_key> -s <secret_key>`"
+	print "syntax is `./s3_boto3_basic_tests.py -h <hostname> -p 80 -a <access_key> -s <secret_key>`"
 	sys.exit(1)
 
 
