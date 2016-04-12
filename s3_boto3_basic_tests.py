@@ -38,6 +38,10 @@ prefix = 'http://'
 
 
 print_verbose = False
+#
+#set tests == 'all' as a default
+#
+tests = "all"
 
 #
 #provide some CLI options.  If they aren't set, we assume
@@ -45,8 +49,8 @@ print_verbose = False
 #
 
 try:
-        opts, args = getopt.getopt(sys.argv[1:], "h:p:a:s:v", ["host=","port=","access_key=",
-        	"secret_key","verbose"])
+        opts, args = getopt.getopt(sys.argv[1:], "h:p:a:s:t:v", ["host=","port=","access_key=",
+        	"secret_key=","tests=","verbose"])
 except getopt.GetoptError as err:
         # print help information and exit:
         print(err) # will print something like "option -a not recognized"
@@ -55,6 +59,7 @@ except getopt.GetoptError as err:
 
 
 for opt, arg in opts:
+
 	if opt in ('-h', '--host'):
 		host = arg
 	if opt in ('-p', '--port'):
@@ -63,6 +68,8 @@ for opt, arg in opts:
 		access_key = arg
 	if opt in ('-s','--secret_key'):
 		secret_key = arg
+	if opt in ('-t','--tests'):
+		tests = arg
 	if opt in ('-v', '--verbose'):
 		print_verbose = True
 
@@ -75,8 +82,11 @@ for opt, arg in opts:
 
 
 if len(opts) < 4:
-	print "syntax is `./s3_boto3_basic_tests.py -h <hostname> -p 80 -a <access_key> -s <secret_key>`"
+	print "syntax is `./s3_boto3_basic_tests.py -h <hostname> -p 80 -a <access_key> -s <secret_key> [-t tests] [--verbose]`"
 	sys.exit(1)
+
+
+
 
 
 
@@ -681,7 +691,7 @@ def put_object_with_acl(cName):
 	except botocore.exceptions.ClientError as e:
 		printfail(method,e.response)
 
-def put_object_acl(objKey,cName):
+def put_object_acl(cName,objKey):
 	#
 	#slightly different, we need to do this against an existing object
 	#
@@ -777,7 +787,7 @@ def upload_part(cName):
 		)
 		printsuccess(method,response)
 	except botocore.exceptions.ClientError as e:
-		printfail(method.e.response)
+		printfail(method,e.response)
 
 
 
@@ -891,6 +901,86 @@ def delete_objects(cName,objList):
 		printfail(method,e.response)
 
 
+#
+#this is ugly, for now.
+#
+
+def tests_all(cName):
+
+	head_bucket(cName)
+	put_bucket_acl(cName)
+	get_slew_bucket_ops(cName)
+
+
+	put_bucket_cors(cName)
+	put_bucket_lifecycle_configuration(cName)
+	put_bucket_logging(cName)
+	put_bucket_notification_configuration(cName)
+	put_bucket_policy(cName)
+	put_bucket_replication(cName)
+	put_bucket_request_payment(cName)
+	put_bucket_tagging(cName)
+	put_bucket_versioning(cName)
+	put_bucket_website(cName)
+
+
+	delete_slew_bucket_ops(cName)
+
+
+	#########
+	#
+	#if you want to run any object related things, make sure the following line is
+	# uncommented.
+
+	objKey = put_object_basic(cName)
+	#print objKey
+
+	#maybe you want to make a lot of files
+
+	#put_object_lots(cName)
+
+	#if you want to delete multiple objects, use this:
+
+	objList = list_objects(cName)
+	#pprint.pprint(objList)
+
+
+
+	put_object_with_acl(cName)
+
+	put_object_acl(cName,objKey)
+
+
+
+	list_multipart_uploads(cName)
+	list_object_versions(cName)
+	list_objects(cName)
+	list_parts(cName,objKey)
+	restore_object(cName,objKey)
+
+	upload_file(cName)
+
+
+	#if you want to download a file and validate its contents, use this
+	dlFile = upload_file(cName)
+	download_file(cName,dlFile)
+
+
+	create_multipart_upload(cName)
+	upload_part(cName)
+	upload_part_copy(cName,objKey)
+	abort_multipart_upload(cName,objKey)
+	complete_multipart_upload(cName,objKey)
+
+	copy_object(cName,objKey)
+
+	delete_object(cName,objKey)
+	delete_objects(cName,objList)
+
+
+	get_slew_object_ops(cName,objKey)
+	head_object(cName,objKey)
+
 
 
 
@@ -932,87 +1022,31 @@ cName = bucket_list['Buckets'][-1]['Name']
 #print cName
 
 
+
+# for funcs in  dir(sys.modules[__name__]):
+# 	myfunc = getattr(sys.modules[__name__],funcs)
+# 	if callable(myfunc):
+# 		#print dir(myfunc)
+# 		print "%s, %s" % (myfunc,myfunc.func_code.co_argcount)
+
+# #
+#do_stuff
 #
-#
-#####
 
-
-
-
-head_bucket(cName)
-put_bucket_acl(cName)
-get_slew_bucket_ops(cName)
-
-
-put_bucket_cors(cName)
-put_bucket_lifecycle_configuration(cName)
-put_bucket_logging(cName)
-put_bucket_notification_configuration(cName)
-put_bucket_policy(cName)
-put_bucket_replication(cName)
-put_bucket_request_payment(cName)
-put_bucket_tagging(cName)
-put_bucket_versioning(cName)
-put_bucket_website(cName)
-
-
-delete_slew_bucket_ops(cName)
-
-
-#########
-#
-#if you want to run any object related things, make sure the following line is
-# uncommented.
-
-objKey = put_object_basic(cName)
-#print objKey
-
-#maybe you want to make a lot of files
-
-#put_object_lots(cName)
-
-#if you want to delete multiple objects, use this:
-
-objList = list_objects(cName)
-#pprint.pprint(objList)
-
-
-
-put_object_with_acl(cName)
-
-put_object_acl(objKey,cName)
-
-
-
-list_multipart_uploads(cName)
-list_object_versions(cName)
-list_objects(cName)
-list_parts(cName,objKey)
-restore_object(cName,objKey)
-
-upload_file(cName)
-
-
-#if you want to download a file and validate its contents, use this
-dlFile = upload_file(cName)
-download_file(cName,dlFile)
-
-
-create_multipart_upload(cName)
-upload_part(cName)
-upload_part_copy(cName,objKey)
-abort_multipart_upload(cName,objKey)
-complete_multipart_upload(cName,objKey)
-
-copy_object(cName,objKey)
-
-delete_object(cName,objKey)
-delete_objects(cName,objList)
-
-
-get_slew_object_ops(cName,objKey)
-head_object(cName,objKey)
-
+if 'all' in tests:
+	tests_all(cName)
+else:
+	myfunc =  getattr(sys.modules[__name__],tests)
+	#
+	#sometimes we need to specify different args..
+	#
+	if myfunc.func_code.co_argcount == 1:
+		#following is a hack..
+		argIndex = myfunc.func_code.co_argcount - 1
+		if 'cName' in myfunc.func_code.co_varnames[argIndex]:
+			myfunc(cName)
+		elif 'objKey' in myfunc.func_code.co_varnames[argIndex]:
+			myfunc(objKey)
 
 
 

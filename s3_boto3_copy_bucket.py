@@ -19,11 +19,13 @@ from random import choice
 
 #TODO: 
 
+# * hit a bucket and check for existance 
+# * figure out pagination
+# * 
 
 
 ###############
-# some variables you will want to set. If not, you need to specify arg's
-# see next section
+# 'hard'coded variables for now
 #
 prefix = 'http://'
 
@@ -35,12 +37,11 @@ prefix = 'http://'
 print_verbose = False
 
 #
-#provide some CLI options.  If they aren't set, we assume
-# variables in the previous section are to be used.
+#provide some CLI options.  
 #
 
 try:
-        opts, args = getopt.getopt(sys.argv[1:], "b:h:p:a:s:v", ["bucket=","host=","port=","access_key=",
+        opts, args = getopt.getopt(sys.argv[1:], "s:t::h:p:a:s:v", ["src_bucket=","tgt_bucket=","host=","port=","access_key=",
         	"secret_key","verbose"])
 except getopt.GetoptError as err:
         # print help information and exit:
@@ -50,7 +51,9 @@ except getopt.GetoptError as err:
 
 
 for opt, arg in opts:
-	if opt in ('-b', '--bucket'):
+	if opt in ('-s', '--src_bucket'):
+		bucket = arg
+	if opt in ('-t', '--tgt_bucket'):
 		bucket = arg
 	if opt in ('-h', '--host'):
 		host = arg
@@ -67,12 +70,11 @@ for opt, arg in opts:
 
 
 #####
-#only use the hardcoded options if we didn't get any passed to us. 
 #
 
 
 if len(opts) < 5:
-	print "syntax is `./s3_boto3_shortlist.py -h <hostname> -p 80 -a <access_key> -s <secret_key>`"
+	print "syntax is `./s3_boto3_shortlist.py -s <src_bucket> -t <tgt_bucket> -h <hostname> -p 80 -a <access_key> -s <secret_key>`"
 	sys.exit(1)
 
 
@@ -80,7 +82,7 @@ if len(opts) < 5:
 
 def printfail(method,response):
 	#
-	#this is mainly so we have a consistent way to print shit
+	#this is mainly so we have a consistent way to print 
  	#
  	# for later: if there is the '-v' flag set by the user, print more verbose stuff.
  	#
@@ -137,43 +139,15 @@ def make_session():
 #
 #
 
-def list_buckets():
-	#
-	#attempt to list buckets
-	#
 
-	try:
-		response = s3client.list_buckets()
-	except botocore.exceptions.ClientError as e:
-		print e.message
-		sys.exit(0)
+#
+#all we really need to do is make sure our two buckets exist
+#
 
-	
-	#print len(response['Buckets'])
+def check_bucket(cname):
 
-	return(response)
-
-
-def create_bucket():
-
-	print "+++create_bucket+++"
-	#
-	#make a bucket
-	#
-	# make the container name random
-	cName = "test-" + (''.join(choice(ascii_uppercase) for i in range(12)))
-	try:
-		response = s3client.create_bucket(
-			Bucket=cName,
-			ACL='public-read-write',
-			GrantFullControl='apkey',
-			)
-		print response
-		return cName
-	except botocore.exceptions.ClientError as e:
-		print e.response
-
-
+	bucket = s3client.Bucket('name')
+	return bucket
 
 
 #
@@ -301,6 +275,9 @@ def copy_object(cName,objKey):
 #########
 
 s3client = make_session()
+
+check_bucket(src_bucket)
+check_bucket(tgt_bucket)
 
 
 
