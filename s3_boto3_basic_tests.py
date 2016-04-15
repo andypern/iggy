@@ -200,7 +200,7 @@ def head_bucket(cName):
 	#HEAD first :)  this fails if we don't set an acl at create time
 	try:
 		response = s3client.head_bucket(Bucket=cName)
-		printsuccess(func,response)
+		printsuccess(method,response)
 	except botocore.exceptions.ClientError as e:
 		#print dir(e)
 		#print e.response
