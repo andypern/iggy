@@ -51,7 +51,7 @@ for opt, arg in opts:
 
 
 if len(opts) < 4:
-	print "syntax is `./s3_boto3_shortlist.py -h <hostname> -p 80 -a <access_key> -s <secret_key>`"
+	print "syntax is `./s3_boto3_connect.py -h <hostname> -p 80 -a <access_key> -s <secret_key>`"
 	sys.exit(1)
 
 
@@ -64,11 +64,13 @@ if len(opts) < 4:
 def make_session():
 
 	session = boto3.session.Session()
+	endpoint_url= prefix + host + ':' + port
 
+	
 	s3client = session.client('s3',
 			aws_access_key_id = access_key,
 	        aws_secret_access_key = secret_key,
-			endpoint_url=prefix + host + ':' + port,
+			endpoint_url= prefix + host + ':' + port,
 			use_ssl=False,
 			verify=False,
 			config=boto3.session.Config(
@@ -79,6 +81,9 @@ def make_session():
 			)
 
 	return s3client
+
+
+s3client = make_session()
 
 
 try:

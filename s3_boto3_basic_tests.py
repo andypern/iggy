@@ -1006,6 +1006,7 @@ s3client = make_session()
 ##bucket in the list (loadgen-bucket typicallly on topo12). don't use for 'delete_bucket'
 #
 bucket_list = list_buckets()
+print "got bucket list"
 
 
 #pprint.pprint(bucket_list)
