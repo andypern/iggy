@@ -112,7 +112,7 @@ def printsuccess(method,response):
  	if print_verbose == True:
  		print "%s,%s" % (method,response)
  	else:
- 		try:
+ 		try:	
 	 		print "%s,%s" % (method,response['ResponseMetadata']['HTTPStatusCode'])
  		except TypeError as e:
  			print "%s : 200 , but had TypeError : %s" %(method,e)
@@ -668,7 +668,8 @@ def put_object_lots(cName):
 			Body=b'xyz',
 			Bucket=cName,
 			Key=objKey)
-			printsuccess(method,response)
+			#printsuccess(method,response)
+			print "made file # %s" %(i)
 		except botocore.exceptions.ClientError as e:
 			printfail(method,e.response)
 	print "Done making %s files" %(keyCount)
@@ -1049,6 +1050,8 @@ else:
 		elif 'objKey' in myfunc.func_code.co_varnames[argIndex]:
 			myfunc(objKey)
 
+#print "putting lots"
+#put_object_lots(cName)
 
 
 
