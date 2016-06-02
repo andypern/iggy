@@ -25,7 +25,9 @@ from random import choice
 
 #TODO: 
 
-# 
+# * breakout retry logic into a function to eliminate dupliation
+# * rename this file and add in a download/read function
+# * trap and handle 500 errors
 
 ###############
 # some variables , will make this dynamic in the future.
@@ -34,17 +36,8 @@ urlprefix = 'http://'
 
 #random file prefix so we can clean up easily also
 
-
-#fileprefix = "file-" + (''.join(choice(ascii_uppercase) for i in range(3)))
-
 fileprefix = "file-"
 
-#
-#
-#
-#
-# end of variables
-##################
 
 #
 #set defaults, can be overriden via args
@@ -54,15 +47,26 @@ print_verbose = False
 largeFiles = False
 delete_only = False
 filecount = 1000
+session_timeout = 1
 max_retries = 5
+
+#
+#
+#
+#
+# end of variables
+##################
+
+
 
 #
 #provide some CLI options.  
 #
 
 try:
-        opts, args = getopt.getopt(sys.argv[1:], "h:p:a:s:b:c:dlv", ["host=","port=","access_key=",
-        	"secret_key=","bucket=","count=","delete","large","verbose"])
+        opts, args = getopt.getopt(sys.argv[1:], "h:p:a:s:b:c:dlr:v", 
+        	["host=","port=","access_key=","secret_key=","bucket=","count=",
+        	"delete","large","retries=","verbose"])
 except getopt.GetoptError as err:
         # print help information and exit:
         print(err) # will print something like "option -a not recognized"
@@ -88,6 +92,8 @@ for opt, arg in opts:
 		delete_only = True
 	if opt in ('-l','--large'):
 		largeFiles = True
+	if opt in ('-r','--retries'):
+		max_retries = int(arg)
 	if opt in ('-v', '--verbose'):
 		print_verbose = True
 
@@ -100,7 +106,7 @@ for opt, arg in opts:
 #
 
 if len(opts) < 5:
-	print "syntax is `./s3_put_test.py -h <hostname> -p 80 -a <access_key> -s <secret_key> -b bucket [-c filecount] [--delete] [--large] [--verbose]`"
+	print "syntax is `./s3_put_test.py -h <hostname> -p 80 -a <access_key> -s <secret_key> -b bucket [-c filecount] [--delete] [--large] [-r retries] [--verbose]`"
 	sys.exit(1)
 
 
@@ -111,7 +117,7 @@ if len(opts) < 5:
 
 def printfail(method,response):
 	#
-	#this is mainly so we have a consistent way to print shit
+	#this is mainly so we have a consistent way to print 
  	#
  	# for later: if there is the '-v' flag set by the user, print more verbose stuff.
  	#
@@ -123,7 +129,7 @@ def printfail(method,response):
 
 def printsuccess(method,response):
 	#
-	#this is mainly so we have a consistent way to print shit
+	#this is mainly so we have a consistent way to print
  	#
  	# for later: if there is the '-v' flag set by the user, print more verbose stuff.
  	#
@@ -139,7 +145,7 @@ def printsuccess(method,response):
 
 	#
 	#build the client session.  Note the signature version
-	# is required to be 's3' at this time. 
+	# is required to be 's3' at this time, as opposed to 's3v4'
 	#
 
 def make_session():
@@ -154,8 +160,8 @@ def make_session():
 			verify=False,
 			config=boto3.session.Config(
 				signature_version='s3',
-				connect_timeout=60,
-				read_timeout=60,
+				connect_timeout=session_timeout,
+				read_timeout=session_timeout,
 				s3={'addressing_style': 'path'})
 			)
 
@@ -216,11 +222,12 @@ def put_object_lots(bucket, filecount, fileprefix):
 		except botocore.vendored.requests.exceptions.ReadTimeout as e:
 			#if we get a timeout, retry until we hit max_retries
 
-			print "got a timeout: %s" %(e)
+			print "got a timeout for %s: %s" %(objKey,e)
 			local_elapsed_time = time.time() - local_start_time
 			print "this timeout took %s , initiating retry" %(local_elapsed_time)
+
 			for attempt in range(max_retries):
-				print "attempt #%s of %s" %(attempt,max_retries)
+				print "attempt #%s of %s" %(attempt + 1,max_retries)
 				try:
 					response = s3client.put_object(
 					Body=b'xyz',
@@ -231,7 +238,12 @@ def put_object_lots(bucket, filecount, fileprefix):
 					print "at %s made file # %s in %s" %(nowtime, i, local_elapsed_time)
 					break
 				except botocore.vendored.requests.exceptions.ReadTimeout as e:
-					continue
+					if attempt < (max_retries - 1):
+						print "attempt %s failed, %s remaining" %(attempt + 1, max_retries - attempt)
+						continue
+					else:
+						print "all attempts failed..aborting this transfer"
+						break
 
 	global_elapsed_time = time.time() - global_start_time
 	print "Done making %s files, it took %s" %(filecount, global_elapsed_time)
@@ -260,6 +272,34 @@ def upload_file(bucket, filecount, fileprefix):
 			print "at %s made file # %s in %s" %(nowtime, i, local_elapsed_time)
 		except botocore.exceptions.ClientError as e:
 			printfail(method,e.response)
+		except (botocore.vendored.requests.exceptions.ConnectionError, 
+			botocore.vendored.requests.exceptions.ReadTimeout) as e:
+			#if we get a timeout, retry until we hit max_retries
+			print "got a timeout for %s: %s" %(objKey,e)
+			local_elapsed_time = time.time() - local_start_time
+			print "this timeout took %s , initiating retry" %(local_elapsed_time)
+
+			for attempt in range(max_retries):
+				print "attempt #%s of %s" %(attempt + 1,max_retries)
+				try:
+					response =  s3client.upload_file(
+						'/tmp/2mb.file', 
+						bucket,
+						objKey
+						)
+					#printsuccess(method,response)
+					local_elapsed_time = time.time() - local_start_time
+					print "at %s made file # %s in %s" %(nowtime, i, local_elapsed_time)
+					break
+				except (botocore.vendored.requests.exceptions.ConnectionError, 
+						botocore.vendored.requests.exceptions.ReadTimeout) as e:
+					if attempt < (max_retries - 1):
+						print "attempt %s failed, %s remaining" %(attempt + 1, max_retries - attempt)
+						continue
+					else:
+						print "all attempts failed..aborting this transfer"
+						break
+
 	global_elapsed_time = time.time() - global_start_time
 	print "Done making %s files, it took %s" %(filecount, global_elapsed_time)
 

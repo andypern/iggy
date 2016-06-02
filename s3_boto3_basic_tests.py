@@ -32,12 +32,14 @@ from random import choice
 #
 prefix = 'http://'
 
+
 #
 # end of variables
 ##################
 
 
 print_verbose = False
+use_ssl = False
 #
 #set tests == 'all' as a default
 #
@@ -49,8 +51,8 @@ tests = "all"
 #
 
 try:
-        opts, args = getopt.getopt(sys.argv[1:], "h:p:a:s:t:v", ["host=","port=","access_key=",
-        	"secret_key=","tests=","verbose"])
+        opts, args = getopt.getopt(sys.argv[1:], "h:p:a:s:ub:t:v", ["host=","port=","access_key=",
+        	"secret_key=","use_ssl","bucket=","tests=","verbose"])
 except getopt.GetoptError as err:
         # print help information and exit:
         print(err) # will print something like "option -a not recognized"
@@ -68,6 +70,11 @@ for opt, arg in opts:
 		access_key = arg
 	if opt in ('-s','--secret_key'):
 		secret_key = arg
+	if opt in ('-u','--use_ssl'):
+		use_ssl = True
+		prefix = 'https://'
+	if opt in ('-b','--bucket'):
+		bucket = arg
 	if opt in ('-t','--tests'):
 		tests = arg
 	if opt in ('-v', '--verbose'):
@@ -132,7 +139,7 @@ def make_session():
 			aws_access_key_id = access_key,
 	        aws_secret_access_key = secret_key,
 			endpoint_url=prefix + host + ':' + port,
-			use_ssl=False,
+			use_ssl=use_ssl,
 			verify=False,
 			config=boto3.session.Config(
 				signature_version='s3',
@@ -1006,22 +1013,30 @@ s3client = make_session()
 ##this one is if you want to operate against the first 
 ##bucket in the list (loadgen-bucket typicallly on topo12). don't use for 'delete_bucket'
 #
+
+
 bucket_list = list_buckets()
 print "got bucket list"
 
 
 #pprint.pprint(bucket_list)
 
-cName = bucket_list['Buckets'][0]['Name']
 
-#print cName
+try:
+	if isinstance(bucket, str):
+		cName = bucket
+except:
 
-#
-#if you want to use 'delete_bucket', then uncomment following
-#
+	cName = bucket_list['Buckets'][0]['Name']
 
-cName = bucket_list['Buckets'][-1]['Name']
-#print cName
+	#print cName
+
+	#
+	#if you want to use 'delete_bucket', then uncomment following
+	#
+
+	cName = bucket_list['Buckets'][-1]['Name']
+	#print cName
 
 
 

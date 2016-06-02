@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 
+
+#
+#This script illustrates how to connect using the boto3 library to an Igneous Data Router.
+# Upon successful connection, it will print out a list of containers (buckets)
+#
 import boto3
 
 import os
@@ -12,6 +17,7 @@ session = boto3.session.Session()
 ###############
 # some variables need to be set. 
 #
+#currently only http is supported (not https)
 prefix = 'http://'
 
 #
@@ -56,8 +62,7 @@ if len(opts) < 4:
 
 
 #
-#build the client session.  Note the signature version
-# is required to be 's3' at this time. 
+#build the client session. 
 #
 
 
@@ -74,9 +79,11 @@ def make_session():
 			use_ssl=False,
 			verify=False,
 			config=boto3.session.Config(
+				#set signature_version to either s3 or s3v4
 				signature_version='s3',
 				connect_timeout=60,
 				read_timeout=60,
+				#addressing style must be set to 'path'
 				s3={'addressing_style': 'path'})
 			)
 
@@ -95,6 +102,5 @@ except ClientError as e:
 
 #
 # just dump the dictionary of buckets from the response.
-# you'll probably want to do something a little more elegant.
 #
 print response['Buckets']
