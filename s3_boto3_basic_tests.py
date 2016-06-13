@@ -135,16 +135,23 @@ def make_session():
 
 	session = boto3.session.Session()
 
+	
 	s3client = session.client('s3',
 			aws_access_key_id = access_key,
 	        aws_secret_access_key = secret_key,
-			endpoint_url=prefix + host + ':' + port,
-			use_ssl=use_ssl,
+			endpoint_url= prefix + host + ':' + port,
+			#region_name is needed for s3v4. can be pretend.
+			region_name="iggy-1",
+			use_ssl=False,
 			verify=False,
 			config=boto3.session.Config(
-				signature_version='s3',
+				#set signature_version to either s3 or s3v4
+				#note: if you set to s3v4 you need to set a 'region_name'
+				#important: s3v4 will cause PUTs of objects to fail..for now.
+				signature_version='s3v4',
 				connect_timeout=60,
 				read_timeout=60,
+				#addressing style must be set to 'path'
 				s3={'addressing_style': 'path'})
 			)
 
@@ -731,6 +738,8 @@ def put_object_acl(cName,objKey):
 		printsuccess(method,response)
 	except botocore.exceptions.ClientError as e:
 		printfail(method,e.response)
+	except botocore.exceptions.ParamValidationError as e:
+		print "param validation error %s with %s" %(e,method)
 
 def restore_object(cName,objKey):
 	#
@@ -956,8 +965,9 @@ def tests_all(cName):
 
 	put_object_with_acl(cName)
 
+	#you need an objKey for this..
+	objKey =  objList['Contents'][0]['Key']
 	put_object_acl(cName,objKey)
-
 
 
 	list_multipart_uploads(cName)
@@ -971,6 +981,8 @@ def tests_all(cName):
 
 	#if you want to download a file and validate its contents, use this
 	dlFile = upload_file(cName)
+	dlFile = objKey
+
 	download_file(cName,dlFile)
 
 
@@ -1038,7 +1050,7 @@ except:
 	cName = bucket_list['Buckets'][-1]['Name']
 	#print cName
 
-
+print cName
 
 # for funcs in  dir(sys.modules[__name__]):
 # 	myfunc = getattr(sys.modules[__name__],funcs)
@@ -1053,6 +1065,11 @@ except:
 if 'all' in tests:
 	tests_all(cName)
 else:
+	#we'll get the cName from previous, but we need an objKey 
+	#if we want to use any of the download/get ops
+	objKey = list_objects(cName)['Contents'][0]['Key']
+
+
 	myfunc =  getattr(sys.modules[__name__],tests)
 	#
 	#sometimes we need to specify different args..
@@ -1064,6 +1081,22 @@ else:
 			myfunc(cName)
 		elif 'objKey' in myfunc.func_code.co_varnames[argIndex]:
 			myfunc(objKey)
+	else:
+		#this happens when there are 2 arg's required
+		#Note that only the first 2 variables in this array
+		# are arguments.
+
+		for arg in myfunc.func_code.co_varnames:
+			if 'cName' in arg:
+				cNamePresent = True
+			if 'objKey' in arg:
+				objKeyPresent = True
+		if cNamePresent and objKeyPresent:
+
+			try:
+				myfunc(cName,objKey)
+			except:
+				print "there was an erra"
 
 #print "putting lots"
 #put_object_lots(cName)

@@ -76,10 +76,13 @@ def make_session():
 			aws_access_key_id = access_key,
 	        aws_secret_access_key = secret_key,
 			endpoint_url= prefix + host + ':' + port,
+			#region_name is needed for s3v4. can be pretend.
+			region_name="iggy-1",
 			use_ssl=False,
 			verify=False,
 			config=boto3.session.Config(
 				#set signature_version to either s3 or s3v4
+				#note: if you set to s3v4 you need to set a 'region_name'
 				signature_version='s3',
 				connect_timeout=60,
 				read_timeout=60,
