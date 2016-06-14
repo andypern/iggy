@@ -48,7 +48,7 @@ logger = logging.getLogger(__name__)
 #
 urlprefix = 'http://'
 
-#random file prefix so we can clean up easily also
+#file prefix, makes it easier to filter for objects to delete
 
 fileprefix = "file-"
 
