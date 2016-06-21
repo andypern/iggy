@@ -328,6 +328,16 @@ def upload_file(s3client,bucket, filecount, fileprefix):
 			#retry until we either succeed, or reach max_retries
 			#
 			for attempt in range(max_retries):
+				#
+				#exponential backoff
+				#
+
+				#use 30 seconds as the minimum backoff
+
+				backoff = (2 ** attempt) * 30
+				print "sleeping for %s secs before retry" %(backoff) 
+				time.sleep(backoff)
+
 				print "attempt #%s of %s" %(attempt + 1,max_retries)
 				try:
 					response =  transfer.upload_file(
