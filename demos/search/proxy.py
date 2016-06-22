@@ -6,10 +6,9 @@
 #original proxy code borrowed from voorloop_at_gmail.com
 
 ######TODO
-# * multi-threading...
 # * add CLI arg's
+# * figure out crtl-c to kill all threads
 # * detect 'ifdir' or something
-# * strip fields we don't care about
 # * typing before insertion? (content-length = int?)<-necessary?
 
 
@@ -192,34 +191,25 @@ class indexer(Process):
 
         
         INDEX = 'demo'
-        TYPE = 'fstest'
+        TYPE = 'fstest2'
         es = Elasticsearch(
             ['192.168.2.147'],
             port=9200
         )
 
 
-        #makes sense for ID to be the objectKey
         while True:
             phat_hash = self.file_queue.get()
+            #makes sense for ID to be the objectKey
             index_id = phat_hash['path']
-            #print("{}: Queue String: {}".format(proc_name,next_task))
-
-            #print("file_name {}".format(next_task[0]))
-
             
-            print phat_hash
+            #print phat_hash
 
             index_id = phat_hash['path']
             res = es.index(index=INDEX, doc_type=TYPE, id=index_id, body=phat_hash)
             print res
 
             self.result_queue.put(res)
-
-        
-       
-
-
         
         print(res)
         
@@ -247,28 +237,34 @@ def header_handler(http_data):
                 phat_hash['command'] = 'PUT'
                 phat_hash['path'] = http_request.path
                 for key in http_request.headers.keys():
-                    #just shove everything into our anonymous hash
-                    #not so useful if we want to strip out non-essential fields
-                    # but oh well for now.
-                    phat_hash[key] = http_request.headers[key]
+                    #strip things we don't care about
+                    if 'connection' in key:
+                        #do nothing..
+                        pass
+                    elif 'authorization' in key:
+                        pass
+                    elif 'expect' in key:
+                        pass
+                    else:
+                        phat_hash[key] = http_request.headers[key]
  
-        else:
-            #commenting most out for now, we don't really care about responses
-            #phat_hash['header_type'] = "response"
-            #this is a response
-            socket_string = FakeSocket(http_data)
-            http_response = HTTPResponse(socket_string)
-            try:
-                http_response.begin()
-                #
-                #if the response is just an HTTP continuation ack, ignore it
-                #
-                if len(http_response.getheaders()) > 0:
-                    #print http_response.getheaders()
-                    isResponse = True
-            except httplib.BadStatusLine as e:
-                isHeader = False
-                #print "this isn't a header, skippping"
+        # else:
+        #     #commenting most out for now, we don't really care about responses
+        #     #phat_hash['header_type'] = "response"
+        #     #this is a response
+        #     socket_string = FakeSocket(http_data)
+        #     http_response = HTTPResponse(socket_string)
+        #     try:
+        #         http_response.begin()
+        #         #
+        #         #if the response is just an HTTP continuation ack, ignore it
+        #         #
+        #         if len(http_response.getheaders()) > 0:
+        #             #print http_response.getheaders()
+        #             isResponse = True
+        #     except httplib.BadStatusLine as e:
+        #         isHeader = False
+        #         #print "this isn't a header, skippping"
 
         return phat_hash
 
