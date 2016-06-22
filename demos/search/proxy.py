@@ -10,7 +10,7 @@
 # * add CLI arg's
 # * detect 'ifdir' or something
 # * strip fields we don't care about
-# * typing before insertion? (content-length = int?)
+# * typing before insertion? (content-length = int?)<-necessary?
 
 
 import socket
@@ -22,6 +22,12 @@ import os
 from datetime import datetime
 from elasticsearch import Elasticsearch
 
+from multiprocessing import Process, JoinableQueue, Queue
+
+#
+#variables
+#
+threadcount = 5
 #
 #http request parsing class, taken from http://goo.gl/Q96AKg 
 #
@@ -152,12 +158,72 @@ class TheServer:
         #we don't want to block pushing the request/response , so send it first
         self.channel[self.s].send(data)
 
+
+    
+        
+
         #once its sent on its way, lets parse it
+        #for now, we'll parse in main thread, but perhaps it makes sense 
+        #to parse from a separate queue.
+
         parse_result = header_handler(data)
         if len(parse_result) > 0:
-            #print parse_result
-            index_result = indexer(parse_result)
 
+            file_queue.put(parse_result)
+            #index_result = indexer(parse_result)
+
+
+class indexer(Process):
+
+    def __init__(self,file_queue,result_queue):
+        Process.__init__(self)
+        self.file_queue = file_queue
+        self.result_queue = result_queue
+        
+
+
+    def run(self):
+        proc_name = self.name
+        #
+        #there are some situations where we will want to throw away the header, specifically when
+        # we think that the metadata wasn't actually saved.  We know when these can happen (x-amz-metadata-directive=REPLACE)
+        # however for now we'll just use everything we see.
+        #
+
+        
+        INDEX = 'demo'
+        TYPE = 'fstest'
+        es = Elasticsearch(
+            ['192.168.2.147'],
+            port=9200
+        )
+
+
+        #makes sense for ID to be the objectKey
+        while True:
+            phat_hash = self.file_queue.get()
+            index_id = phat_hash['path']
+            #print("{}: Queue String: {}".format(proc_name,next_task))
+
+            #print("file_name {}".format(next_task[0]))
+
+            
+            print phat_hash
+
+            index_id = phat_hash['path']
+            res = es.index(index=INDEX, doc_type=TYPE, id=index_id, body=phat_hash)
+            print res
+
+            self.result_queue.put(res)
+
+        
+       
+
+
+        
+        print(res)
+        
+      
 
 
         
@@ -181,6 +247,9 @@ def header_handler(http_data):
                 phat_hash['command'] = 'PUT'
                 phat_hash['path'] = http_request.path
                 for key in http_request.headers.keys():
+                    #just shove everything into our anonymous hash
+                    #not so useful if we want to strip out non-essential fields
+                    # but oh well for now.
                     phat_hash[key] = http_request.headers[key]
  
         else:
@@ -203,38 +272,33 @@ def header_handler(http_data):
 
         return phat_hash
 
-def indexer(phat_hash):
-
-    #print phat_hash
-
-
-    #
-    #there are some situations where we will want to throw away the header, specifically when
-    # we think that the metadata wasn't actually saved.  We know when these can happen (x-amz-metadata-directive=REPLACE)
-    # however for now we'll just use everything we see.
-    #
-
-    #
-    #first we'll do a quick hack without any error checking 
-    #
-   
-    index_id = phat_hash['path']
-    INDEX = 'demo'
-    TYPE = 'fstest'
-
-   
-    es = Elasticsearch(
-        ['192.168.2.147'],
-        port=9200
-    )
-
-    res = es.index(index=INDEX, doc_type=TYPE, id=index_id, body=phat_hash)
-    print(res)
 
 if __name__ == '__main__':
-        server = TheServer('', 9090)
-        try:
-            server.main_loop()
-        except KeyboardInterrupt:
-            print "Ctrl C - Stopping server"
-            sys.exit(1)
+    server = TheServer('', 9090)
+    #
+    #launch processes for doing work
+    #
+    file_queue = JoinableQueue()
+    result_queue = Queue()
+    file_processes = [ indexer(file_queue, result_queue)
+                      for i in range(threadcount) ]    
+
+
+
+
+    #
+    #actually kick off daemons
+    #
+
+    for w in file_processes:
+        w.start()
+
+    #
+    #now just get the proxy started
+    # 
+
+    try:
+        server.main_loop()
+    except KeyboardInterrupt:
+        print "Ctrl C - Stopping server"
+        sys.exit(1)
