@@ -5,7 +5,12 @@
 #
 #original proxy code borrowed from voorloop_at_gmail.com
 
-
+######TODO
+# * multi-threading...
+# * add CLI arg's
+# * detect 'ifdir' or something
+# * strip fields we don't care about
+# * typing before insertion? (content-length = int?)
 
 
 import socket
@@ -13,6 +18,9 @@ import select
 import time
 import sys
 import httplib
+import os
+from datetime import datetime
+from elasticsearch import Elasticsearch
 
 #
 #http request parsing class, taken from http://goo.gl/Q96AKg 
@@ -47,6 +55,20 @@ class FakeSocket():
         self._file = StringIO(response_str)
     def makefile(self, *args, **kwargs):
         return self._file
+
+
+#
+#build a dict class to get some anonymous hash going on
+#
+
+class Ddict(dict):
+    def __init__(self, default=None):
+        self.default = default
+
+    def __getitem__(self, key):
+        if not self.has_key(key):
+            self[key] = self.default()
+        return dict.__getitem__(self, key)
 
 
 
@@ -127,12 +149,25 @@ class TheServer:
 
     def on_recv(self):
         data = self.data
-        #print dir(self)
-        # here we can parse and/or modify the data before send forward
-        
-        #parse the request/response
-        http_request = HTTPRequest(data)
+        #we don't want to block pushing the request/response , so send it first
+        self.channel[self.s].send(data)
 
+        #once its sent on its way, lets parse it
+        parse_result = header_handler(data)
+        if len(parse_result) > 0:
+            #print parse_result
+            index_result = indexer(parse_result)
+
+
+
+        
+
+
+def header_handler(http_data):
+            #parse the request/response
+        http_request = HTTPRequest(http_data)
+
+        phat_hash = Ddict( dict )
         #We only care about requests for our purposes
         # in reality, we should only care about requests that get responded to positively
         # that  might be hard to do though.
@@ -140,15 +175,19 @@ class TheServer:
         # if there's no command..its a response (not a request)
         if http_request.command != None:
             #
-            #we only want to see PUT's here
+            #we only care about PUT's
             #
             if http_request.command in "PUT":
-                print http_request.path
-                print http_request.headers['content-length']
-                print http_request.headers.keys()
+                phat_hash['command'] = 'PUT'
+                phat_hash['path'] = http_request.path
+                for key in http_request.headers.keys():
+                    phat_hash[key] = http_request.headers[key]
+ 
         else:
+            #commenting most out for now, we don't really care about responses
+            #phat_hash['header_type'] = "response"
             #this is a response
-            socket_string = FakeSocket(data)
+            socket_string = FakeSocket(http_data)
             http_response = HTTPResponse(socket_string)
             try:
                 http_response.begin()
@@ -162,7 +201,35 @@ class TheServer:
                 isHeader = False
                 #print "this isn't a header, skippping"
 
-        self.channel[self.s].send(data)
+        return phat_hash
+
+def indexer(phat_hash):
+
+    #print phat_hash
+
+
+    #
+    #there are some situations where we will want to throw away the header, specifically when
+    # we think that the metadata wasn't actually saved.  We know when these can happen (x-amz-metadata-directive=REPLACE)
+    # however for now we'll just use everything we see.
+    #
+
+    #
+    #first we'll do a quick hack without any error checking 
+    #
+   
+    index_id = phat_hash['path']
+    INDEX = 'demo'
+    TYPE = 'fstest'
+
+   
+    es = Elasticsearch(
+        ['192.168.2.147'],
+        port=9200
+    )
+
+    res = es.index(index=INDEX, doc_type=TYPE, id=index_id, body=phat_hash)
+    print(res)
 
 if __name__ == '__main__':
         server = TheServer('', 9090)

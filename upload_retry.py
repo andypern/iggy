@@ -332,9 +332,9 @@ def upload_file(s3client,bucket, filecount, fileprefix):
 				#exponential backoff
 				#
 
-				#use 30 seconds as the minimum backoff
+				#use 10 seconds as the minimum backoff
 
-				backoff = (2 ** attempt) * 30
+				backoff = (2 ** attempt) * 10
 				print "sleeping for %s secs before retry" %(backoff) 
 				time.sleep(backoff)
 
