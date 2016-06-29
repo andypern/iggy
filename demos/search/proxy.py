@@ -7,7 +7,7 @@
 
 ######TODO
 # * figure out crtl-c to kill all threads
-# * detect 'ifdir' or something (no need: content-type works)
+# * detect and prune based on DELETE requests
 # * typing before insertion? (content-length = int?)<-necessary?
 
 import argparse
@@ -22,10 +22,7 @@ from elasticsearch import Elasticsearch
 
 from multiprocessing import Process, JoinableQueue, Queue
 
-#
-#variables
-#
-threadcount = 5
+
 
 # Changing the buffer_size and delay, you can improve the speed and bandwidth.
 # But when buffer get to high or delay go too down, you can broke things
@@ -264,17 +261,47 @@ def header_handler(http_data):
             #we only care about PUT's
             #
             if http_request.command in "PUT":
-                phat_hash['command'] = 'PUT'
+                #phat_hash['command'] = 'PUT'
                 phat_hash['path'] = http_request.path
+                #
+                #its probably a good idea to have a 'shortname'
+                #for the file as well.
+                if phat_hash['path'].split('/')[-1].strip():
+                    #this means its a file, and not an empty string
+                    phat_hash['shortName'] = phat_hash['path'].split('/')[-1]
+                    phat_hash['objType'] = "file"
+                else:
+
+                    #this means its a file, eg: empty string after split
+                    phat_hash['shortName'] = phat_hash['path'].split('/')[-2]
+                    phat_hash['objType'] = "directory"
+                    
+
                 for key in http_request.headers.keys():
                     #strip things we don't care about
                     if 'connection' in key:
+                        #do nothing..
+                        pass
+                    if 'command' in key:
                         #do nothing..
                         pass
                     elif 'authorization' in key:
                         pass
                     elif 'expect' in key:
                         pass
+                    #in some cases, we want to force some mapping
+                    elif 'content-length' in key:
+                        phat_hash[key] = int(http_request.headers[key])
+                    
+                    #having it listed as 'x-amz-meta' or similar is annoying for search later.
+                    #attempt to truncate.    
+                    elif 'meta-ign-mimetype' in key:
+                        #cs backup script overrides 'content-type' with 'x-amz-meta-meta-ign-mimetype'
+                        #for now, i'll transform his..
+                        phat_hash['content-type'] = http_request.headers[key]
+                    elif 'meta-ign-c' in key:
+                        #print type(http_request.headers[key])
+                        phat_hash[key] = int(float(http_request.headers[key]))
                     else:
                         phat_hash[key] = http_request.headers[key]
  
