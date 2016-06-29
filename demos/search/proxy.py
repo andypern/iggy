@@ -8,7 +8,7 @@
 ######TODO
 # * figure out crtl-c to kill all threads
 # * detect and prune based on DELETE requests
-# * typing before insertion? (content-length = int?)<-necessary?
+# * insert intermediary 'directory' entries into ES (eg: path leading to object)
 
 import argparse
 import socket
@@ -17,6 +17,7 @@ import time
 import sys
 import httplib
 import os
+import re
 from datetime import datetime
 from elasticsearch import Elasticsearch
 
@@ -292,17 +293,32 @@ def header_handler(http_data):
                     #in some cases, we want to force some mapping
                     elif 'content-length' in key:
                         phat_hash[key] = int(http_request.headers[key])
-                    
-                    #having it listed as 'x-amz-meta' or similar is annoying for search later.
-                    #attempt to truncate.    
-                    elif 'meta-ign-mimetype' in key:
-                        #cs backup script overrides 'content-type' with 'x-amz-meta-meta-ign-mimetype'
-                        #for now, i'll transform his..
-                        phat_hash['content-type'] = http_request.headers[key]
-                    elif 'meta-ign-c' in key:
-                        #print type(http_request.headers[key])
-                        phat_hash[key] = int(float(http_request.headers[key]))
+                    elif 'content-type' in key:
+                        #rename to mimetype to match cs script
+                        phat_hash['mimetype'] = http_request.headers[key] 
+                    #strip out leading 'x-amz-meta-meta-ign..'
+                    elif 'meta-ign' in key:
+                        metaRe = re.search('x-amz-meta-meta-ign-(.+)', key)
+                        if  metaRe:
+                        #if the group contains a '-' , just grab the word
+                            if '-' in metaRe.group(1):
+                                attr = metaRe.group(1).split('-')[1]
+                                if 'time' in attr:
+                                    #this is an epoch timestamp..make it an int 
+                                    phat_hash[attr] = int(float(http_request.headers[key]))
+                                else:
+                                    #this is either mode, uid, or gid for now, just leave as str
+                                    phat_hash[attr] = http_request.headers[key]
+
+                            else:
+                                #this means there wasn't a '-' , so we can just use the word
+                                phat_hash[metaRe.group(1)] = http_request.headers[key]
+                        else:
+                            #this means it had meta-ign, but didn't match known pattern
+                            # in which case, just shove it in
+                            phat_hash[key] = http_request.headers[key]
                     else:
+                        #this is where non matched keys go
                         phat_hash[key] = http_request.headers[key]
  
         # else:
