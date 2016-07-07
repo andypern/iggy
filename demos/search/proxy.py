@@ -195,10 +195,9 @@ class TheServer:
         if len(parse_result) > 0:
 
             file_queue.put(parse_result)
-            #index_result = indexer(parse_result)
 
 
-class indexer(Process):
+class objIndexer(Process):
 
     def __init__(self,file_queue,result_queue,es_cluster,index_name,es_type):
         Process.__init__(self)
@@ -243,7 +242,46 @@ class indexer(Process):
         
       
 
+class dirIndexer(Process):
 
+    def __init__(self,dir_queue,result_queue,es_cluster,index_name,es_type):
+        Process.__init__(self)
+        self.dir_queue = dir_queue
+        self.result_queue = result_queue
+        self.es_cluster = es_cluster
+        self.index_name = index_name
+        self.es_type = es_type
+        
+
+
+    def run(self):
+        proc_name = self.name
+        #
+        #mainly for each entry we need to 
+        #
+
+        
+
+        es = Elasticsearch(
+            [self.es_cluster],
+            port=9200
+        )
+
+
+        while True:
+            phat_hash = self.file_queue.get()
+            #makes sense for ID to be the objectKey
+            index_id = phat_hash['path']
+            
+            #print phat_hash
+
+            index_id = phat_hash['path']
+            res = es.index(index=self.index_name, doc_type=self.es_type, id=index_id, body=phat_hash)
+            print res
+
+            self.result_queue.put(res)
+        
+        print(res)
         
 
 
@@ -264,19 +302,47 @@ def header_handler(http_data):
             if http_request.command in "PUT":
                 #phat_hash['command'] = 'PUT'
                 phat_hash['path'] = http_request.path
+       
                 #
-                #its probably a good idea to have a 'shortname'
+                #strip out the rest of the path so we know the 'shortname' of the object
+                #but first, figure out if this is a directory or a file
                 #for the file as well.
                 if phat_hash['path'].split('/')[-1].strip():
                     #this means its a file, and not an empty string
+                    #
+                    #but, we *do* want the directories leading up to it
+                    #
                     phat_hash['shortName'] = phat_hash['path'].split('/')[-1]
                     phat_hash['objType'] = "file"
                 else:
+                    #this means its a 'directory'. 
+                    #
+                    #now, we have to make sure that all of the 'intermediary' keys are added to the index as well.
+                    # eg: /bucket/dir1/dir2/dir3/file -> all 3 dirs need to be added to the index.
+                    # in order not to waste too many calls to ES for duplicate entries (eg: every put to the same folder)
+                    # will result in lots of puts of the same intermediary directories, the entries can be pushed to a queue
+                    # which is processed periodically and is de-duped.
+                    
 
-                    #this means its a file, eg: empty string after split
+
+                    #
+                    #this is the child, we should put this right away
+                    #
                     phat_hash['shortName'] = phat_hash['path'].split('/')[-2]
                     phat_hash['objType'] = "directory"
-                    
+
+                
+                #handle intermediary paths outside the if/else
+                # idea here is: put each dirEnt into a queue, perhaps entry is
+                # a dict/tuple with all pertinent values.  Then, when queue is pulled from, the 
+                # dirIndex process (of which there is only one) will check a dictionary to see if the key 
+                # already exists.  eg: the whole thing '/index/dir1/dir2/dir3' is the key, and 
+                # the values are the individual subdirs.  
+
+
+                #for dirEntry in phat_hash['path'].split('/'):
+                    #if not dirEntry.strip():
+
 
                 for key in http_request.headers.keys():
                     #strip things we don't care about
@@ -351,12 +417,22 @@ if __name__ == '__main__':
     #launch processes for doing work
     #
     file_queue = JoinableQueue()
+    dir_queue = JoinableQueue()
+
     result_queue = Queue()
-    file_processes = [ indexer(file_queue, result_queue,es_cluster,index_name,es_type)
+
+    #
+    #this is for indexing files
+    #
+    file_processes = [ objIndexer(file_queue, result_queue,es_cluster,index_name,es_type)
                       for i in range(num_threads) ]    
 
+    #
+    #this is for indexing intermediary dirs
+    #
 
-
+    dir_processes = [ dirIndexer(dir_queue, result_queue,es_cluster,index_name,es_type)
+                      for i in range(num_threads) ]  
 
     #
     #actually kick off daemons
