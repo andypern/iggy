@@ -128,17 +128,42 @@ def get_key(s3Client,src_bucket,objKey):
 
 def put_key(iggyClient,dest_bucket,keyDict,objKey,prefix):
 	
-
 	putKey = prefix + "/" + objKey
+
+	#
+	#build empty request constructor
+	#
+	kwargs = {}
+
+	#
+	#put in stuff we do every time
+	#
+	kwargs['Body'] = keyDict['Body'].read()
+	kwargs['Bucket'] = dest_bucket
+	kwargs['Key'] = putKey
+	#
+	#put in stuff that will vary..
+	#
+	for myKey in keyDict.keys():
+		if "Metadata" in myKey:
+			kwargs['Metadata'] = keyDict[myKey]
+
+
 	try:
-		response = iggyClient.put_object(
-			Body=keyDict['Body'].read(),
-			Bucket=dest_bucket,
-			Key=putKey)
+		response = iggyClient.put_object(**kwargs)
 		return response
+
+
+	# try:
+	# 	response = iggyClient.put_object(
+	# 		Body=keyDict['Body'].read(),
+	# 		Bucket=dest_bucket,
+	# 		Key=putKey)
+	# 	return response
+	
 	
 	except botocore.exceptions.ClientError as e:
-		printfail(method,e.response)
+	 	printfail(method,e.response)
 
 
 
@@ -255,9 +280,10 @@ if __name__ == "__main__":
 	 		objKey =  key['Key']
 	 		getResponse = get_key(s3Client,args.src_bucket,objKey)
 	 		#for myKey in getResponse.keys():
-	 		#	print myKey
-	 		putResponse = put_key(iggyClient,args.dest_bucket,getResponse,objKey,arg.prefix)
-	 		print putResponse
+			#	print "%s -> %s" %(myKey,getResponse[myKey])
+
+	 		putResponse = put_key(iggyClient,args.dest_bucket,getResponse,objKey,args.prefix)
+	 		#print putResponse
 
 
 
