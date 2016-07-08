@@ -28,46 +28,13 @@ import json
 
 #TODO: 
 
-# * figure out pagination
+# * threading
+# * limit queue to not run out of RAM?
+	# * perhaps do this based on content-length
+# * deal with metadata
+# implement logging
 
 
-
-
-
-
-
-def printfail(method,response):
-	#
-	#this is mainly so we have a consistent way to print 
- 	#
- 	# for later: if there is the '-v' flag set by the user, print more verbose stuff.
- 	#
- 	if print_verbose == True:
- 		print "%s,%s" % (method,response)
- 	else:
-		print "%s,%s" % (method,response['ResponseMetadata']['HTTPStatusCode'])
-
-
-def printsuccess(method,response):
-	#
-	#this is mainly so we have a consistent way to print shit
- 	#
- 	# for later: if there is the '-v' flag set by the user, print more verbose stuff.
- 	#
- 	if print_verbose == True:
- 		print "%s,%s" % (method,response)
- 	else:
- 		try:
-	 		print "%s,%s" % (method,response['ResponseMetadata']['HTTPStatusCode'])
- 		except TypeError as e:
- 			print "%s : 200 , but had TypeError : %s" %(method,e)
-
-
-
-	#
-	#build the client session.  Note the signature version
-	# is required to be 's3' at this time. 
-	#
 
 def make_iggy_session(endpoint,iggy_key,iggy_secret):
 
@@ -101,13 +68,6 @@ def make_aws_session(s3_key,s3_secret):
 
 
 
-######Bucket ops#####
-#
-#
-
-
-
-
 def check_buckets(iggyClient,s3Client,src_bucket,dest_bucket):
 
 	try:
@@ -129,11 +89,6 @@ def check_buckets(iggyClient,s3Client,src_bucket,dest_bucket):
  
 	return iggyBucket,s3Bucket
 	
-
-
-#
-# access , list , HEAD bucket we just created
-#
 
 
 
@@ -158,21 +113,6 @@ def list_objects(s3Client,src_bucket):
 
 
 
-
-
-#
-#
-#
-####end of bucket ops####
-
-
-####Start of object Ops####
-#
-#
-#
-
-
-
 def get_key(s3Client,src_bucket,objKey):
 	try:
 		response = s3Client.get_object(
@@ -185,14 +125,9 @@ def get_key(s3Client,src_bucket,objKey):
 		print error_code
 
 
-#
-#puts
-#
 
 def put_key(iggyClient,dest_bucket,keyDict,objKey,prefix):
-	#
-	#basic object put, nothing special
-	#
+	
 
 	putKey = prefix + "/" + objKey
 	try:
@@ -204,6 +139,8 @@ def put_key(iggyClient,dest_bucket,keyDict,objKey,prefix):
 	
 	except botocore.exceptions.ClientError as e:
 		printfail(method,e.response)
+
+
 
 def put_object_lots(cName):
 	method = 'put_object_lots'
@@ -219,6 +156,7 @@ def put_object_lots(cName):
 		except botocore.exceptions.ClientError as e:
 			printfail(method,e.response)
 	print "Done making %s files" %(keyCount)
+
 
 
 
