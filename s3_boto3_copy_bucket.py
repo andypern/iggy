@@ -31,7 +31,6 @@ import json
 # * threading
 # * limit queue to not run out of RAM?
 	# * perhaps do this based on content-length
-# * deal with metadata
 # implement logging
 
 
@@ -86,7 +85,8 @@ def check_buckets(iggyClient,s3Client,src_bucket,dest_bucket):
 		print "had an issue with src_bucket : %s , %s" %(src_bucket,e.response)
 		sys.exit(1)
 		#error_code = int(e.response['Error']['Code'])
- 
+
+
 	return iggyBucket,s3Bucket
 	
 
@@ -106,7 +106,6 @@ def list_objects(s3Client,src_bucket):
 			)
 
 
-		#printsuccess(method,paginator)
 		return pages
 	except botocore.exceptions.ClientError as e:
 		printfail(method,e.response)
@@ -163,42 +162,9 @@ def put_key(iggyClient,dest_bucket,keyDict,objKey,prefix):
 	
 	
 	except botocore.exceptions.ClientError as e:
-	 	printfail(method,e.response)
+	 	printfail(e.response)
 
 
-
-def put_object_lots(cName):
-	method = 'put_object_lots'
-	keyCount = 1000
-	for i in range(keyCount):
-		objKey = "file-" + '-' + str(i) + '-' + (''.join(choice(ascii_uppercase) for i in range(3))) 
-		try:
-			response = s3client.put_object(
-			Body=b'xyz',
-			Bucket=cName,
-			Key=objKey)
-			printsuccess(method,response)
-		except botocore.exceptions.ClientError as e:
-			printfail(method,e.response)
-	print "Done making %s files" %(keyCount)
-
-
-
-
-def upload_file(cName):
-	method = 'upload_file'
-	objKey = "upload-" + (''.join(choice(ascii_uppercase) for i in range(6))) + '.txt'
-
-	try:
-		response = s3client.upload_file(
-			'/tmp/hello.txt', 
-			cName,
-			objKey
-			)
-		printsuccess(method,response)
-		return objKey
-	except botocore.exceptions.ClientError as e:
-		printfail(method,e.response)
 
 
 
@@ -271,6 +237,7 @@ if __name__ == "__main__":
 
 
 	iggyBucket,s3Bucket = check_buckets(iggyClient,s3Client,args.src_bucket,args.dest_bucket)
+	sys.exit(1)
 
 	objPages = list_objects(s3Client,args.src_bucket)
 
