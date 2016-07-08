@@ -2,6 +2,7 @@
 
 import boto3
 import botocore
+from boto3.s3.transfer import S3Transfer, TransferConfig
 
 import xml.etree
 import pprint
@@ -9,73 +10,28 @@ from datetime import datetime
 import time
 import os
 import sys
-import getopt
+import ConfigParser
+import argparse
 import re
 from string import ascii_uppercase
 from random import choice
+import threading
+import Queue
+import logging
+
+import json
+
+
 
 
 
 
 #TODO: 
 
-# * hit a bucket and check for existance 
 # * figure out pagination
-# * 
-
-
-###############
-# 'hard'coded variables for now
-#
-prefix = 'http://'
-
-#
-# end of variables
-##################
-
-
-print_verbose = False
-
-#
-#provide some CLI options.  
-#
-
-try:
-        opts, args = getopt.getopt(sys.argv[1:], "s:t::h:p:a:s:v", ["src_bucket=","tgt_bucket=","host=","port=","access_key=",
-        	"secret_key","verbose"])
-except getopt.GetoptError as err:
-        # print help information and exit:
-        print(err) # will print something like "option -a not recognized"
-        print "wrong option"
-        sys.exit(2)
-
-
-for opt, arg in opts:
-	if opt in ('-s', '--src_bucket'):
-		bucket = arg
-	if opt in ('-t', '--tgt_bucket'):
-		bucket = arg
-	if opt in ('-h', '--host'):
-		host = arg
-	if opt in ('-p', '--port'):
-		port = arg
-	if opt in ('-a', '--access_key'):
-		access_key = arg
-	if opt in ('-s','--secret_key'):
-		secret_key = arg
-	if opt in ('-v', '--verbose'):
-		print_verbose = True
 
 
 
-
-#####
-#
-
-
-if len(opts) < 5:
-	print "syntax is `./s3_boto3_shortlist.py -s <src_bucket> -t <tgt_bucket> -h <hostname> -p 80 -a <access_key> -s <secret_key>`"
-	sys.exit(1)
 
 
 
@@ -113,14 +69,14 @@ def printsuccess(method,response):
 	# is required to be 's3' at this time. 
 	#
 
-def make_session():
+def make_iggy_session(endpoint,iggy_key,iggy_secret):
 
-	session = boto3.session.Session()
+	iggySession = boto3.session.Session()
 
-	s3client = session.client('s3',
-			aws_access_key_id = access_key,
-	        aws_secret_access_key = secret_key,
-			endpoint_url=prefix + host + ':' + port,
+	iggyClient = iggySession.client('s3',
+			aws_access_key_id = iggy_key,
+	        aws_secret_access_key = iggy_secret,
+			endpoint_url=endpoint,
 			use_ssl=False,
 			verify=False,
 			config=boto3.session.Config(
@@ -130,24 +86,49 @@ def make_session():
 				s3={'addressing_style': 'path'})
 			)
 
-	return s3client
+	return iggyClient
+
+def make_aws_session(s3_key,s3_secret):
+
+	s3Session = boto3.session.Session()
+
+	s3Client = s3Session.client('s3',
+			aws_access_key_id = s3_key,
+	        aws_secret_access_key = s3_secret
+			)
+
+	return s3Client
 
 
 
 ######Bucket ops#####
 #
 #
-#
 
 
-#
-#all we really need to do is make sure our two buckets exist
-#
 
-def check_bucket(cname):
 
-	bucket = s3client.Bucket('name')
-	return bucket
+def check_buckets(iggyClient,s3Client,src_bucket,dest_bucket):
+
+	try:
+		iggyBucket = iggyClient.head_bucket(Bucket=dest_bucket)
+	
+	except botocore.exceptions.ClientError as e:
+		#print dir(e)
+		print "had an issue with dest_bucket : %s , %s" %(dest_bucket,e.response)
+		sys.exit(1)
+		#error_code = int(e.response['Error']['Code'])
+
+	try:
+		s3Bucket = s3Client.head_bucket(Bucket=src_bucket)
+	except botocore.exceptions.ClientError as e:
+		#print dir(e)
+		print "had an issue with src_bucket : %s , %s" %(src_bucket,e.response)
+		sys.exit(1)
+		#error_code = int(e.response['Error']['Code'])
+ 
+	return iggyBucket,s3Bucket
+	
 
 
 #
@@ -156,27 +137,24 @@ def check_bucket(cname):
 
 
 
-def list_objects(cName):		 
-	#list what's inside
+def list_objects(s3Client,src_bucket):		 
+	#
+	#note that you can only get back up to 1000 keys at a time
+	# so using pagination to try and get them all.
+	#
 	method = 'list_objects'
 	try:
-		objList = s3client.list_objects(
-			Bucket=cName,
-			MaxKeys=100)
-		printsuccess(method,objList)
-		return objList
+		paginator = s3Client.get_paginator('list_objects')
+
+		pages = paginator.paginate(
+			Bucket=src_bucket		
+			)
+
+
+		#printsuccess(method,paginator)
+		return pages
 	except botocore.exceptions.ClientError as e:
 		printfail(method,e.response)
-
-
-
-
-		printsuccess(method,response)
-	except botocore.exceptions.ClientError as e:
-		printfail(method,e.response)
-	except botocore.exceptions.ParamValidationError as e:
-		print "%s : error before sending request : %s" % (method,e)
-
 
 
 
@@ -194,24 +172,36 @@ def list_objects(cName):
 #
 
 
+
+def get_key(s3Client,src_bucket,objKey):
+	try:
+		response = s3Client.get_object(
+			Bucket=src_bucket,
+			Key=objKey)
+		return response
+
+	except botocore.exceptions.ClientError as e:
+		error_code = int(e.response['Error']['Code'])
+		print error_code
+
+
 #
 #puts
 #
 
-def put_object_basic(cName):
+def put_key(iggyClient,dest_bucket,keyDict,objKey,prefix):
 	#
 	#basic object put, nothing special
 	#
-	method = 'put_object_basic'
-	objKey = "file-" + (''.join(choice(ascii_uppercase) for i in range(6)))
 
+	putKey = prefix + "/" + objKey
 	try:
-		response = s3client.put_object(
-			Body=b'xyz',
-			Bucket=cName,
-			Key=objKey)
-		printsuccess(method,response)
-		return objKey
+		response = iggyClient.put_object(
+			Body=keyDict['Body'].read(),
+			Bucket=dest_bucket,
+			Key=putKey)
+		return response
+	
 	except botocore.exceptions.ClientError as e:
 		printfail(method,e.response)
 
@@ -250,34 +240,86 @@ def upload_file(cName):
 
 
 
-def copy_object(cName,objKey):
-	method = 'copy_object'
-	newKey = "copy-object-" + (''.join(choice(ascii_uppercase) for i in range(6)))
-
-	
-	try:
-		response = s3client.copy_object(
-		    Bucket=cName,
-		    CopySource={'Bucket': cName, 'Key': objKey, 'VersionId': '1'},
-		    Key=newKey
-		)
-
-		printsuccess(method,response)
-	except botocore.exceptions.ClientError as e:
-		printfail(method,e.response)
-	except xml.etree.cElementTree.ParseError as e:
-		print "%s : we got a 200 , but had an error that we couldn't resolve : %s" %(method,e)
-
-
 
 #########
 #end of functions
 #########
 
-s3client = make_session()
 
-check_bucket(src_bucket)
-check_bucket(tgt_bucket)
+if __name__ == "__main__":
+
+
+	parser = argparse.ArgumentParser(description = "s3 bucket to bucket copy")
+
+	parser.add_argument('-v', '--verbose',
+	help="Verbose output",
+	required = False,
+	action = 'store_true',
+	default = False)
+	parser.add_argument('-q', '--quiet',
+	help="No output",
+	required = False,
+	action = 'store_true',
+	default = False)
+
+	parser.add_argument('-t', '--thread-count',	
+	help='Number of worker threads processing the objects',
+	dest='threads_no',
+	required = False,
+	type = int,
+	default = 20)
+
+	parser.add_argument('-', '--prefix',	
+	help='directory on target to put data into, default is bucketBackup',
+	dest='prefix',
+	required = False,
+	default = 'bucketBackup')
+
+	parser.add_argument('--src_bucket', 
+	help = "Source s3 bucket name and optional path")
+
+	parser.add_argument('--dest_bucket',
+	help = "Destination s3 bucket name")
+
+	parser.add_argument('--iggy_key',
+	help = "Igneous access key")
+
+	parser.add_argument('--s3_key',
+	help = "amazon s3 access key")
+
+	parser.add_argument('--iggy_secret',
+	help = "Igneous secret key")
+
+	parser.add_argument('--s3_secret',
+	help = "s3 secret key")
+
+	parser.add_argument('-e', '--endpoint',
+	help = "Igneous endpoint, eg: http://igneous.company.com:80")
+
+	args =  parser.parse_args()
+	
+
+	if args.quiet:
+		args.verbose = False
+
+
+	iggyClient = make_iggy_session(args.endpoint,args.iggy_key,args.iggy_secret)
+	s3Client = make_aws_session(args.s3_key,args.s3_secret)
+
+
+	iggyBucket,s3Bucket = check_buckets(iggyClient,s3Client,args.src_bucket,args.dest_bucket)
+
+	objPages = list_objects(s3Client,args.src_bucket)
+
+
+	for page in objPages:
+	 	for key in page['Contents']:
+	 		objKey =  key['Key']
+	 		getResponse = get_key(s3Client,args.src_bucket,objKey)
+	 		#for myKey in getResponse.keys():
+	 		#	print myKey
+	 		putResponse = put_key(iggyClient,args.dest_bucket,getResponse,objKey,arg.prefix)
+	 		print putResponse
 
 
 
