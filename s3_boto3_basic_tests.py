@@ -786,7 +786,7 @@ def create_multipart_upload(cName):
 	    Key=objKey,
 	)
 		printsuccess(method,response)
-		return response['UploadId']
+		return (response['Key'],response['UploadId'])
 	except botocore.exceptions.ClientError as e:
 		printfail(method,e.response)
 
@@ -988,8 +988,8 @@ def tests_all(cName):
 	download_file(cName,dlFile)
 
 
-	upload_id = create_multipart_upload(cName)
-	list_parts(cName,objKey)
+	oKey,upload_id = create_multipart_upload(cName)
+	list_parts(cName,oKey,upload_id)
 	upload_part(cName,upload_id)
 	upload_part_copy(cName,objKey)
 	
