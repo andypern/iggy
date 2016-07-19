@@ -792,7 +792,7 @@ def create_multipart_upload(cName):
 
 
 
-def upload_part(cName):
+def upload_part(cName,upload_id):
 	method = 'upload_part'
 	objKey = "multipart-" + (''.join(choice(ascii_uppercase) for i in range(6)))
 
@@ -800,9 +800,9 @@ def upload_part(cName):
 		response = s3client.upload_part(
 		    Body=b'randombytes',
 		    Bucket=cName,
-		    Key='fake_file',
+		    Key=objKey,
 		    PartNumber=2,
-		    UploadId='1234',
+		    UploadId=upload_id,
 		)
 		printsuccess(method,response)
 	except botocore.exceptions.ClientError as e:
@@ -989,8 +989,7 @@ def tests_all(cName):
 
 
 	upload_id = create_multipart_upload(cName)
-	print "upload id: %s" %(upload_id)
-	upload_part(cName)
+	upload_part(cName,upload_id)
 	upload_part_copy(cName,objKey)
 	list_parts(cName,objKey)
 	abort_multipart_upload(cName,objKey)
