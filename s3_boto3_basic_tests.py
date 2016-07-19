@@ -148,7 +148,7 @@ def make_session():
 				#set signature_version to either s3 or s3v4
 				#note: if you set to s3v4 you need to set a 'region_name'
 				#important: s3v4 will cause PUTs of objects to fail..for now.
-				signature_version='s3v4',
+				signature_version='s3',
 				connect_timeout=60,
 				read_timeout=60,
 				#addressing style must be set to 'path'
