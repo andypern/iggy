@@ -989,9 +989,10 @@ def tests_all(cName):
 
 
 	upload_id = create_multipart_upload(cName)
+	list_parts(cName,objKey)
 	upload_part(cName,upload_id)
 	upload_part_copy(cName,objKey)
-	list_parts(cName,objKey)
+	
 	abort_multipart_upload(cName,objKey)
 	complete_multipart_upload(cName,objKey)
 
