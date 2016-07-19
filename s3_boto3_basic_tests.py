@@ -615,7 +615,7 @@ def head_object(cName,objKey):
 		#print error_code
 		printfail(method,e.response)
 
-def list_parts(cName,objKey):
+def list_parts(cName,objKey,upload_id):
 	#this is probably only valid if there are any multi-part uploads
 	# but it seems to work (empty list)
 	method = 'list_parts'
@@ -624,7 +624,7 @@ def list_parts(cName,objKey):
 		response = s3client.list_parts(
 			Bucket=cName,
 			Key=objKey,
-			UploadId='xyz')
+			UploadId=upload_id)
 		printsuccess(method,response)
 		#print response
 
