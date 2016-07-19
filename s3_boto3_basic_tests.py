@@ -973,7 +973,7 @@ def tests_all(cName):
 	list_multipart_uploads(cName)
 	list_object_versions(cName)
 	list_objects(cName)
-	list_parts(cName,objKey)
+	
 	restore_object(cName,objKey)
 
 	upload_file(cName)
@@ -989,6 +989,7 @@ def tests_all(cName):
 	create_multipart_upload(cName)
 	upload_part(cName)
 	upload_part_copy(cName,objKey)
+	list_parts(cName,objKey)
 	abort_multipart_upload(cName,objKey)
 	complete_multipart_upload(cName,objKey)
 
