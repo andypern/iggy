@@ -233,7 +233,7 @@ You have now got python setup and installed on Windows!
 * s3cmd
 * python
 * Cyberduck
-*
+
 
 
 #stuff to add
@@ -242,7 +242,7 @@ You have now got python setup and installed on Windows!
 * s3cmd sync
 * backup utility? (cloudBerry , etc)
 * cut/paste in community
-* install atom ? 
+* install atom ?
 * survey at the end
 * put everything into community.
 
