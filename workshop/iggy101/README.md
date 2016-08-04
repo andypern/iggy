@@ -19,7 +19,7 @@ Note that depending on network and security conditions, you may also have access
 
 Many of the following steps apply both to Linux as well as OSX.  When there are specific differences between the commands used, you will be directed to either `Linux users`, or `Mac users`
 
-If you are logged into a linux workstation or shared server, some of these tools may already be installed.  Depending on the specific distribution of linux that you are running, some of the commands may differ slightly from what is shown here.  The following assumes you are running RHEL or Centos 6.5.  
+If you are logged into a linux workstation or shared server, some of these tools may already be installed.  Depending on the specific distribution of linux that you are running, some of the commands may differ slightly from what is shown here.  The following assumes you are running RHEL7 or Centos 7.  The main dependancy is python 2.7.x.
 
 
 At bare minimum, you will need sudo or administrative privileges (to be able to install packages and software).  If you do not have this privilege level, please inform the one of the lab facilitators and they will assist you.
@@ -55,9 +55,13 @@ Note, for s3cmd to work, you'll want to do the installation of pip/boto3 first, 
 
 			Python 2.7.11
 	b.  If you see a version number that is _NOT_ 2.7.x, please notify one of the lab instructors and they will help you address the situation.
-	
 
-3.  Install 'pip', to allow for installation of additional python modules:
+3.  `Mac users`, skip this step	.  `Linux users` you'll need to get easy_install setup to proceed.
+	a.  Run:
+	
+			sudo yum install -y python-setuptools
+
+4.  Install 'pip', to allow for installation of additional python modules:
 	a.  Open a terminal, and run:
 	
 			sudo easy_install pip		
@@ -74,7 +78,7 @@ Note, for s3cmd to work, you'll want to do the installation of pip/boto3 first, 
 	
 		/usr/local/bin/pip
 
-4.  Get the necessary python modules installed:
+5.  Get the necessary python modules installed:
 	a.  First, boto3:
 	
 			sudo pip install --ignore-installed boto3
@@ -87,7 +91,7 @@ Note, for s3cmd to work, you'll want to do the installation of pip/boto3 first, 
 	
 			/usr/local/opt/python/bin/python2.7: No module named boto3.__main__; 'boto3' is a package and cannot be directly executed
 
-	If you see `No module named boto3` , it means it was unable to install.  Please notify one of the lab facilitators.
+	If you only see `No module named boto3` , it means it was unable to install.  Please notify one of the lab facilitators.
 	
 	
 	
@@ -119,7 +123,7 @@ Here is a condensed set of steps to get it installed quickly:
 5.  Assuming you got no errors, run the following to verify that its in place:
 
 		 which s3cmd
-	 Output should be:
+	 Output should be similar to:
 	 
 	`/usr/local/bin/s3cmd`
 	
