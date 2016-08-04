@@ -10,10 +10,11 @@ The goal of this lab exercise is to get you familiar with accessing your on prem
 
 
 
-## Pre-requisites
+## CLI related Pre-requisites
 
 Note that depending on network and security conditions, you may also have access to a server which has the needed pre-requisites installed.  One of the lab facilitators will provide you with details in this case.
 
+***Windows users: please skip ahead to the `Windows` section, as the steps you perform will be somewhat different.***
 
 ###Mac & Linux
 
@@ -195,7 +196,7 @@ There are a few ways to get python modules installed in Windows, the simplest is
 
 5.  For a final check, go ahead and launch `IDLE` , which should give you a window which looks like this:
 
-![image](pics/win_python_idle.png)
+	![image](pics/win_python_idle.png)
 
 6.  Run the following, to make sure that python can find the module:
 
@@ -204,4 +205,20 @@ There are a few ways to get python modules installed in Windows, the simplest is
 	
 	
 You have now got python setup and installed on Windows!
+	
+
+####S3cmd setup
+
+1.  Download the latest zip file from [here](https://github.com/s3tools/s3cmd/archive/master.zip)
+2.  Find the file you downloaded in Windows Explorer (usually in `Downloads`), right click, then `Extract all` , eg:
+
+	![image](pics/win_extract_s3cmd.png)
+
+3.  It will prompt you for where to extract it to, feel free to take the defaults, but make a note of the path you see (copy it into your clipboard to make life easier)
+
+3.  Next you will need to open up your `Command Prompt` window, and change Directories.  EG:
+
+		cd %homepath%\Downloads\s3cmd-master
+		
+	*Note that if the directory you downloaded the zip file to was not in your Downloads folder, you will need to adjust*
 	
