@@ -147,16 +147,20 @@ Note that this document was written and tested with Windows7 , but should work w
 	a.  Take defaults, until you get to the `Customize Python 2.7.12` screen
 	b.  Make sure to fully install the `Add python.exe to Path` option, as shown below
 
-		![image](pics/win_add_python_to_path.png)
+	![image](pics/win_add_python_to_path.png)
 
 	c.  Hit next and finish, as appropriate.
 	
 
-3.  Check your `Start Menu` (or equivalent) , you should now see a new Python IDLE icon that will open a window which looks like this:
- 
-	![image](pics/win_python_idle.png)
+3.  Check your `Start Menu` (or equivalent) , look for `All Programs -> Python 2.7 -> IDLE (Python GUI)` , eg:
 
-4.  Close out of this window for the time being, as you'll need to install some additional dependancies.
+
+
+	 ![image](pics/win_launch_idle.png)
+
+
+4.  For now, don't launch it, or if you do, close out of it, since we need to install some dependant modules.
+
 
 ####Getting python modules & dependancies
 
@@ -180,6 +184,24 @@ There are a few ways to get python modules installed in Windows, the simplest is
 	
 		Successfully installed boto3-1.4.0 botocore-1.4.42 docutils-0.12 futures-3.0.5 j
 		mespath-0.9.0 python-dateutil-2.5.3 s3transfer-0.1.1 six-1.10.0		
-4.  
+4.  Make sure it got installed:
+	
+			python -m boto3
+	
+	You should see output such as:
+	
+			/usr/local/opt/python/bin/python2.7: No module named boto3.__main__; 'boto3' is a package and cannot be directly executed
 
+
+5.  For a final check, go ahead and launch `IDLE` , which should give you a window which looks like this:
+
+![image](pics/win_python_idle.png)
+
+6.  Run the following, to make sure that python can find the module:
+
+		import boto3
+	If all is well, you will not get any output to the screen.
+	
+	
+You have now got python setup and installed on Windows!
 	
