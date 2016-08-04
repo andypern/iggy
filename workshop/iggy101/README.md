@@ -36,7 +36,7 @@ Not all of these tools are necessary, but are helpful.  Many of you will already
 * homebrew
 * wget
 * git
-* 
+*
 
 
 ####Python pre-req's
@@ -45,11 +45,11 @@ Not all of these tools are necessary, but are helpful.  Many of you will already
 1.  Open a terminal window, and create a directory to work in during the lab
 
 		mkdir ~/iggylab && cd ~/iggylab
-	
+
 
 2.  Next, validate the version of Python that you have.  The scripts you will be using today were written to work with Python 2.7.x.
 	a.  Open a terminal, and run:
-	
+
 			python --version
 	You should see output similar to:
 
@@ -58,43 +58,43 @@ Not all of these tools are necessary, but are helpful.  Many of you will already
 
 3.  `Mac users`, skip this step	.  `Linux users` you'll need to get easy_install setup to proceed.
 	a.  Run:
-	
+
 			sudo yum install -y python-setuptools
 
 4.  Install 'pip', to allow for installation of additional python modules:
 	a.  Open a terminal, and run:
-	
+
 			sudo easy_install pip		
-		
-		*This may prompt you for a password, `Mac Users`: 
+
+		*This may prompt you for a password, `Mac Users`:
 		simply use the password which you use to login to your Mac
-		
-		
+
+
 	b.  Verify it has been installed:
-	
+
 			which pip
-		
+
 	c.  you should see output such as:
-	
+
 		/usr/local/bin/pip
 
 5.  Get the necessary python modules installed:
 	a.  First, boto3:
-	
+
 			sudo pip install --ignore-installed boto3
-		
+
 	b.  Make sure it got installed:
-	
+
 			python -m boto3
-	
+
 	c.  You should see output such as:
-	
+
 			/usr/local/opt/python/bin/python2.7: No module named boto3.__main__; 'boto3' is a package and cannot be directly executed
 
 	If you only see `No module named boto3` , it means it was unable to install.  Please notify one of the lab facilitators.
-	
-	
-	
+
+
+
 
 ####s3cmd
 
@@ -105,7 +105,7 @@ Here is a condensed set of steps to get it installed quickly:
 
 1.  make sure you are in your iggylab folder:
 
-		cd ~/iggylab 
+		cd ~/iggylab
 2. Download the s3cmd tarball:
 
 		curl -L -O http://downloads.sourceforge.net/project/s3tools/s3cmd/1.6.1/s3cmd-1.6.1.tar.gz
@@ -115,18 +115,18 @@ Here is a condensed set of steps to get it installed quickly:
 4.  Run the installer:
 
 		sudo python setup.py install
-		
+
 	The final line of output should look like so:
-	
+
 	`Finished processing dependencies for s3cmd==1.6.1`
-	
+
 5.  Assuming you got no errors, run the following to verify that its in place:
 
 		 which s3cmd
 	 Output should be similar to:
-	 
+
 	`/usr/local/bin/s3cmd`
-	
+
 S3cmd is now installed!
 
 
@@ -151,7 +151,7 @@ Note that this document was written and tested with Windows7 , but should work w
 	![image](pics/win_add_python_to_path.png)
 
 	c.  Hit next and finish, as appropriate.
-	
+
 
 3.  Check your `Start Menu` (or equivalent) , look for `All Programs -> Python 2.7 -> IDLE (Python GUI)` , eg:
 
@@ -173,24 +173,24 @@ There are a few ways to get python modules installed in Windows, the simplest is
 
 		pip list
 	You should see output similar to:
-	
+
 		pip (8.1.1)
 		setuptools (20.10.1)
 	*Note: you may also see a message about upgrading pip, you can ignore that for now to save time and keystrokes*
 3.  Now you can install the boto3 module:
-	
+
 		pip install boto3
 
 	The last line of output should look similar to this:
-	
+
 		Successfully installed boto3-1.4.0 botocore-1.4.42 docutils-0.12 futures-3.0.5 j
 		mespath-0.9.0 python-dateutil-2.5.3 s3transfer-0.1.1 six-1.10.0		
 4.  Make sure it got installed:
-	
+
 			python -m boto3
-	
+
 	You should see output such as:
-	
+
 			/usr/local/opt/python/bin/python2.7: No module named boto3.__main__; 'boto3' is a package and cannot be directly executed
 
 
@@ -202,10 +202,10 @@ There are a few ways to get python modules installed in Windows, the simplest is
 
 		import boto3
 	If all is well, you will not get any output to the screen.
-	
-	
+
+
 You have now got python setup and installed on Windows!
-	
+
 
 ####S3cmd setup
 
@@ -219,11 +219,41 @@ You have now got python setup and installed on Windows!
 3.  Next you will need to open up your `Command Prompt` window, and change Directories.  EG:
 
 		cd %homepath%\Downloads\s3cmd-master\s3cmd-master
-		
+
 	*Note that if the directory you downloaded the zip file to was not in your Downloads folder, you will need to adjust*
 4.  Run the following command to install s3cmd:
 
 		python setup.py install
-		
 
-	
+
+#overall plan
+* ryan's preso
+* setup CLI pre-req's
+* break
+* s3cmd
+* python
+* Cyberduck
+*
+
+
+#stuff to add
+
+* put vcard in pre-created buckets
+* s3cmd sync
+* backup utility? (cloudBerry , etc)
+* cut/paste in community
+* install atom ? 
+* survey at the end
+* put everything into community.
+
+##Python
+* connect
+* list_bucket
+* list_keys
+* upload
+* download
+* sync (aka: single-threaded os.walk + upload)
+
+* bonus -> more advanced stuff, maybe multi-threaed, etc
+* bonus -> crawler that can write to us? pull images, etc..
+* copy one of their project mounts, sync that to their bucket (multi-threaded)
