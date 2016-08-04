@@ -40,7 +40,6 @@ Not all of these tools are necessary, but are helpful.  Many of you will already
 
 ####Python pre-req's
 
-Note, for s3cmd to work, you'll want to do the installation of pip/boto3 first, since the command relies on boto.
 
 1.  Open a terminal window, and create a directory to work in during the lab
 
@@ -138,6 +137,15 @@ S3cmd is now installed!
 ###Windows
 
 
+Note that this document was written and tested with Windows7 && Windows10.  
+
+1.  Download the python installer:  https://www.python.org/ftp/python/2.7.12/python-2.7.12.msi
+2.  Double click to install
+	a.  Take defaults, until you get to the `Customize Python 2.7.12` screen
+	b.  Make sure to fully install the `Add python.exe to Path` option, as shown below
+
+	pics/win_add_python_to_path.png
+![image](pics/win_add_python_to_path.png)
 
 
 
