@@ -137,16 +137,49 @@ S3cmd is now installed!
 ###Windows
 
 
-Note that this document was written and tested with Windows7 && Windows10.  
+Note that this document was written and tested with Windows7 , but should work with Windows10 also.  
+
+
+####Getting Python installed
 
 1.  Download the python installer:  https://www.python.org/ftp/python/2.7.12/python-2.7.12.msi
 2.  Double click to install
 	a.  Take defaults, until you get to the `Customize Python 2.7.12` screen
 	b.  Make sure to fully install the `Add python.exe to Path` option, as shown below
 
-	pics/win_add_python_to_path.png
-![image](pics/win_add_python_to_path.png)
+		![image](pics/win_add_python_to_path.png)
+
+	c.  Hit next and finish, as appropriate.
+	
+
+3.  Check your `Start Menu` (or equivalent) , you should now see a new Python IDLE icon that will open a window which looks like this:
+ 
+	![image](pics/win_python_idle.png)
+
+4.  Close out of this window for the time being, as you'll need to install some additional dependancies.
+
+####Getting python modules & dependancies
 
 
+There are a few ways to get python modules installed in Windows, the simplest is to use 'pip'.  Luckily, pip is included with the Python install on windows, and so long as you chose the 'Add python.exe to Path' option, its easy to use.
 
+1.  Open up a Windows cmd prompt (type 'cmd' into the start prompt. Its also available in `All Programs -> Accessories -> Command Prompt`)
+2.  Once there:
 
+		pip list
+	You should see output similar to:
+	
+		pip (8.1.1)
+		setuptools (20.10.1)
+	*Note: you may also see a message about upgrading pip, you can ignore that for now to save time and keystrokes*
+3.  Now you can install the boto3 module:
+	
+		pip install boto3
+
+	The last line of output should look similar to this:
+	
+		Successfully installed boto3-1.4.0 botocore-1.4.42 docutils-0.12 futures-3.0.5 j
+		mespath-0.9.0 python-dateutil-2.5.3 s3transfer-0.1.1 six-1.10.0		
+4.  
+
+	
