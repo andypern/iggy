@@ -210,7 +210,7 @@ You have now got python setup and installed on Windows!
 ####S3cmd setup
 
 1.  Download the latest zip file from [here](https://github.com/s3tools/s3cmd/archive/master.zip)
-2.  Find the file you downloaded in Windows Explorer (usually in `Downloads`), right click, then `Extract all` , eg:
+2.  Find the file you downloaded in Windows Explorer (usually in `Downloads`), right click, then `Extract all` .  Make sure to change the path to `c:\s3cmd`
 
 	![image](pics/win_extract_s3cmd.png)
 
@@ -218,7 +218,12 @@ You have now got python setup and installed on Windows!
 
 3.  Next you will need to open up your `Command Prompt` window, and change Directories.  EG:
 
-		cd %homepath%\Downloads\s3cmd-master
+		cd %homepath%\Downloads\s3cmd-master\s3cmd-master
 		
 	*Note that if the directory you downloaded the zip file to was not in your Downloads folder, you will need to adjust*
+4.  Run the following command to install s3cmd:
+
+		python setup.py install
+		
+
 	
