@@ -225,8 +225,9 @@ You have now got python setup and installed on Windows!
 
 		python setup.py install
 
+#appendix
 
-#overall plan
+##overall plan
 * ryan's preso
 * setup CLI pre-req's
 * break
@@ -236,7 +237,7 @@ You have now got python setup and installed on Windows!
 
 
 
-#stuff to add
+##stuff to add
 
 * put vcard in pre-created buckets
 * s3cmd sync
