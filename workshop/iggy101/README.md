@@ -67,7 +67,7 @@ Not all of these tools are necessary, but are helpful.  Many of you will already
 			sudo easy_install pip		
 
 		*This may prompt you for a password, `Mac Users`:
-		simply use the password which you use to login to your Mac
+		simply use the password which you use to login to your Mac*
 
 
 	b.  Verify it has been installed:
@@ -240,12 +240,20 @@ You have now got python setup and installed on Windows!
 ##stuff to add
 
 * put vcard in pre-created buckets
-* s3cmd sync
 * backup utility? (cloudBerry , etc)
 * cut/paste in community
 * install atom ?
 * survey at the end
 * put everything into community.
+* s3cmd workaround to fix cyberduck issue
+
+##s3cmd
+* connect
+* list_bucket
+* list_keys
+* upload
+* download
+* sync
 
 ##Python
 * connect
