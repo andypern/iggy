@@ -138,4 +138,25 @@ You can repeat file uploads for as many files as you wish.
 
 Now that you have a file or two (or more) uploaded, you can practice downloading files to your laptop.  Its basically the same process as PUT/upload , but in the reverse.
 
-1.  Create a
+1.  Create a folder in your homedirectory to download files into:
+
+**Linux & Mac Users**:
+
+    mkdir ~/s3downloads
+**Windows Users**:
+
+    mkdir %homepath%\s3downloads
+
+2.  Determine the URI of the object you wish to download.  The simplest way is to perform a listing of your bucket:
+
+    s3cmd ls s3://$username
+
+As seen previously, this will print out a list of objects, and include the URI which you can use.  For example:
+
+    DIR   s3://andypern/demo_index/
+    DIR   s3://andypern/logs/
+    2016-08-01 14:57 209715200   s3://andypern/200mb.file
+    2016-06-02 20:28       491   `s3://andypern/Important.txt`  <----here's the object key
+    2016-06-02 20:29         7   s3://andypern/bla.txt.rtf.new  
+
+    
