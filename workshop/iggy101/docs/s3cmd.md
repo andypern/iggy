@@ -114,9 +114,9 @@ You will also want to list your own bucket, to make sure you have correct access
 
 ## Upload files / PUT objects
 
-First, locate a file on your computer which you wish to upload.  ***Note: it is simplest if this file exists directly in your home directory***.  Alternatively, you can create a file using a text editor, make sure to save it directly to your home directory.
+1.  locate a file on your computer which you wish to upload.  ***Note: it is simplest if this file exists directly in your home directory***.  Alternatively, you can create a file using a text editor, make sure to save it directly to your home directory.
 
-Next, run the following command to upload it to your personal bucket:
+2.  Next, run the following command to upload it to your personal bucket:
 
 **Linux & Mac Users**:
 
@@ -125,3 +125,17 @@ Next, run the following command to upload it to your personal bucket:
 **Windows Users**:
 
     python.exe s3cmd put %homepath%\myfile.txt s3://$username
+
+    *Again, substitute the $username for your bucket, and substitute 'myfile.txt' with whatever filename you want to upload*
+
+3.  You can verify that your upload made it by listing the bucket again:
+
+    s3cmd ls s3://$username
+
+You can repeat file uploads for as many files as you wish.
+
+## Download files / GET objects
+
+Now that you have a file or two (or more) uploaded, you can practice downloading files to your laptop.  Its basically the same process as PUT/upload , but in the reverse.
+
+1.  Create a
