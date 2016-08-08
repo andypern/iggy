@@ -118,19 +118,19 @@ You will also want to list your own bucket, to make sure you have correct access
 
 2.  Next, run the following command to upload it to your personal bucket:
 
-**Linux & Mac Users**:
+    **Linux & Mac Users**:
 
-    s3cmd put ~/myfile.txt s3://$username
+        s3cmd put ~/myfile.txt s3://$username
 
-**Windows Users**:
+    **Windows Users**:
 
-    python.exe s3cmd put %homepath%\myfile.txt s3://$username
+        python.exe s3cmd put %homepath%\myfile.txt s3://$username
 
     *Again, substitute the $username for your bucket, and substitute 'myfile.txt' with whatever filename you want to upload*
 
 3.  You can verify that your upload made it by listing the bucket again:
 
-    s3cmd ls s3://$username
+        s3cmd ls s3://$username
 
 You can repeat file uploads for as many files as you wish.
 
@@ -140,23 +140,40 @@ Now that you have a file or two (or more) uploaded, you can practice downloading
 
 1.  Create a folder in your homedirectory to download files into:
 
-**Linux & Mac Users**:
+    **Linux & Mac Users**:
 
-    mkdir ~/s3downloads
-**Windows Users**:
+        mkdir ~/s3downloads
+    **Windows Users**:
 
-    mkdir %homepath%\s3downloads
+        mkdir %homepath%\s3downloads
 
 2.  Determine the URI of the object you wish to download.  The simplest way is to perform a listing of your bucket:
 
-    s3cmd ls s3://$username
+        s3cmd ls s3://$username
 
-As seen previously, this will print out a list of objects, and include the URI which you can use.  For example:
+    *As seen previously, this will print out a list of objects, and include the URI which you can use.  For example:*
 
-    DIR   s3://andypern/demo_index/
-    DIR   s3://andypern/logs/
-    2016-08-01 14:57 209715200   s3://andypern/200mb.file
-    2016-06-02 20:28       491   `s3://andypern/Important.txt`  <----here's the object key
-    2016-06-02 20:29         7   s3://andypern/bla.txt.rtf.new  
+        DIR   s3://andypern/demo_index/
+        DIR   s3://andypern/logs/
+        2016-08-01 14:57 209715200   s3://andypern/200mb.file
+        2016-06-02 20:28       491   s3://andypern/Important.txt  <----here's the object key
+        2016-06-02 20:29         7   s3://andypern/bla.txt.rtf.new  
 
-    
+3.  Armed with the URI of your object, run the following command to download it into your `s3downloads` folder:
+
+    **Linux & Mac Users**:
+
+        s3cmd get s3://$username ~/s3downloads
+    **Windows Users**:
+        pythonn.exe s3cmd s3://$username %homepath%\s3downloads
+
+4.  Verify you can see the files locally by navigating to your local `s3downloads` folder.
+
+##Sync a folder
+
+S3cmd lets you sync a folder between your local machine, and your Igneous DataService.  This can be particularly useful when trying to backup documents in your homedirectory, make a daily copy of your source code tree, or other scenarios where you want to make sure you have a copy of an entire folder.  The command can sync in either direction, letting you quickly mirror an entire folder from your Igneous DataService down to your laptop.
+
+Building on previous exercises, run the following command:
+
+
+    s3cmd sync LOCAL_DIR s3://BUCKET[/PREFIX]
