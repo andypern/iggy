@@ -45,11 +45,11 @@ Inside, you should see contents similar to:
 
 The access_key and secret_key can also be used in other applications which require those parameters (such as a python script, or an application such as CyberDuck or ARQ).  Check with your lab instructor or administrator to ensure that the host_base value is correct for the system you will be connecting to.  Assuming all is well, you can simply copy this file:
 
-`Mac & Linux users`:
+**Mac & Linux users**:
 
     cp /path/to/downloaded/s3cfg_file ~/.s3cfg
 
-`Windows users`:
+**Windows users**:
 
 ***NEED TO FILL THIS IN***
 
@@ -58,11 +58,11 @@ The access_key and secret_key can also be used in other applications which requi
 
 The simplest way to test if your configuration is valid is to list all buckets.  
 
-`Linux & Mac users`:
+**Linux & Mac users**:
 
     s3cmd ls
 
-`Windows users`:
+**Windows users**:
 
     python.exe s3cmd -c %homepath%\s3cfg.cfg ls
 
@@ -86,11 +86,11 @@ Basically, any 'file' or 'directory' that exists within the Igneous DataService 
 
 Next, you will list objects which exist within a shared bucket on your Igneous DataService.  Simply run the following command:
 
-*Linux & Mac users*:
+**Linux & Mac users**:
 
     s3cmd ls s3://classbucket
 
-*Windows users*:
+**Windows users**:
 
     python.exe s3cmd ls s3://classbucket
 
@@ -107,8 +107,21 @@ Note that `s3cmd` is able to identify 'directories' vs 'files'.  The output is s
 You will also want to list your own bucket, to make sure you have correct access to it:
 
     s3cmd ls s3://$username
+
 ***Note: $username should be replaced with the name of the bucket named after your login name.  It may differ from the username on your local machine***
 
 
 
 ## Upload files / PUT objects
+
+First, locate a file on your computer which you wish to upload.  ***Note: it is simplest if this file exists directly in your home directory***.  Alternatively, you can create a file using a text editor, make sure to save it directly to your home directory.
+
+Next, run the following command to upload it to your personal bucket:
+
+**Linux & Mac Users**:
+
+    s3cmd put ~/myfile.txt s3://$username
+
+**Windows Users**:
+
+    python.exe s3cmd put %homepath%\myfile.txt s3://$username

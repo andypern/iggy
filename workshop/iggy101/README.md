@@ -247,13 +247,6 @@ You have now got python setup and installed on Windows!
 * put everything into community.
 * s3cmd workaround to fix cyberduck issue
 
-##s3cmd
-* connect
-* list_bucket
-* list_keys
-* upload
-* download
-* sync
 
 ##Python
 * connect
