@@ -36,12 +36,12 @@ Once you have received an `.s3cfg` file from your administrator, open it up in a
 
 Inside, you should see contents similar to:
 
-    [default]
-    access_key = MJ96N3L3BA4IJ9C1YI1x
-    secret_key = AxgWTyDS9ZQdPgc3Y7eJREUVF5qBFJqaAwWEY02x
-    host_base = 10.105.0.21
-    host_bucket =
-    use_https = False
+      [default]
+      access_key = MJ96N3L3BA4IJ9C1YI1x
+      secret_key = AxgWTyDS9ZQdPgc3Y7eJREUVF5qBFJqaAwWEY02x
+      host_base = 10.105.0.21
+      host_bucket =
+      use_https = False
 
 The access_key and secret_key can also be used in other applications which require those parameters (such as a python script, or an application such as CyberDuck or ARQ).  Check with your lab instructor or administrator to ensure that the host_base value is correct for the system you will be connecting to.  Assuming all is well, you can simply copy this file:
 
