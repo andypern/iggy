@@ -86,10 +86,29 @@ Basically, any 'file' or 'directory' that exists within the Igneous DataService 
 
 Next, you will list objects which exist within a shared bucket on your Igneous DataService.  Simply run the following command:
 
-`Linux & Mac users`:
+*Linux & Mac users*:
 
     s3cmd ls s3://classbucket
 
-`Windows users`:
+*Windows users*:
 
     python.exe s3cmd ls s3://classbucket
+
+If all went well, you should see something similar to:
+
+    DIR   s3://andypern/demo_index/
+    DIR   s3://andypern/logs/
+    2016-08-01 14:57 209715200   s3://andypern/200mb.file
+    2016-06-02 20:28       491   s3://andypern/Important.txt.new
+    2016-06-02 20:29         7   s3://andypern/bla.txt.rtf.new
+
+Note that `s3cmd` is able to identify 'directories' vs 'files'.  The output is somewhat similar to standard unix `ls` output.  Note that the column to the far right denotes the full URI that can be used for subsequent operations.
+
+You will also want to list your own bucket, to make sure you have correct access to it:
+
+    s3cmd ls s3://$username
+***Note: $username should be replaced with the name of the bucket named after your login name.  It may differ from the username on your local machine***
+
+
+
+## Upload files / PUT objects
