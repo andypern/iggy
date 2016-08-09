@@ -169,11 +169,20 @@ Now that you have a file or two (or more) uploaded, you can practice downloading
 
 4.  Verify you can see the files locally by navigating to your local `s3downloads` folder.
 
-##Sync a folder
+
+## Sync a folder
 
 S3cmd lets you sync a folder between your local machine, and your Igneous DataService.  This can be particularly useful when trying to backup documents in your homedirectory, make a daily copy of your source code tree, or other scenarios where you want to make sure you have a copy of an entire folder.  The command can sync in either direction, letting you quickly mirror an entire folder from your Igneous DataService down to your laptop.
 
-Building on previous exercises, run the following command:
+Pick a  a folder on your laptop with a fair number of files and subdirectories.  Keep in mind that  you don't want to choose a folder with too much data in it, especially if you are connecting to the network over VPN or WIFI, and the transfer time can be lengthy.  Perhaps a folder that contains spreadsheets/word documents/etc.
+
+Once you've located an appropriate folder:
 
 
-    s3cmd sync LOCAL_DIR s3://BUCKET[/PREFIX]
+    s3cmd sync ~/Desktop/demo s3://andypern/backup/Desktop
+
+*note: s3cmd will create the necessary 'folder structure' , just be sure to put in the correct bucket name.*
+
+If all went well, you should see a long list of files being uploaded, completing with:
+
+    Done. Uploaded 22525487 bytes in 54.0 seconds, 407.07 kB/s.
