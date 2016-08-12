@@ -21,6 +21,8 @@ import tempfile
 
 import botocore.utils as boto_utils
 
+print "imported modules"
+
 ```
 
 
@@ -33,7 +35,7 @@ You'll need to input a few things in order to get started.
 
 **'secret_key'**: A secret key which authenticates you to the server.  You would also obtain this from your IT administrator.  This is similar to a ‘password’.  As such, you should refrain from storing the secret_key directly in your scripts, especially if they are to be placed in a shared location.  
 
-**'endpoint_url'**: This is the URL which hosts your Igneous Data Service.  If you are unsure what to put here, please consult with your IT Administrator.  Typically the endpoint URL would look something like this:  http://igneous.company.com , or https://igneous.company.com:80.
+**'endpoint_url'**: This is the URL which hosts your Igneous Data Service.  If you are unsure what to put here, please consult with your IT Administrator.  Typically the endpoint URL would look something like this:  http://igneous.company.com:80 , or https://igneous.company.com:443.
 
 **Note: if you specify a URL which contains ‘https’ , you will need to change the ‘use_ssl’ parameter to ‘True’.**
 
@@ -43,8 +45,10 @@ You'll need to input a few things in order to get started.
 ```python
 access_key=''
 secret_key=''
-endpoint_url=''
+endpoint_url='http://demo.iggy.bz:7070'
 use_ssl = False
+
+print "variables set"
 
 ```
 
@@ -60,6 +64,8 @@ def boto3_session(access_key, secret_key):
     return boto3.Session(
         aws_access_key_id=access_key,
         aws_secret_access_key=secret_key)
+
+print "session function created"
 
 ```
 
@@ -85,6 +91,8 @@ def boto3_s3_client(access_key, secret_key, endpoint_url):
 
     # All finished here. We can start using the client as expected now
     return client
+
+print "client function created"
 ```
 
 Now you can actually call it..note that it won't 'do' anything yet.  But we'll print out the object so you can verify that it returned.
@@ -117,7 +125,11 @@ Now call it, and see what prints out:
 
 ```python
 
-list_buckets(client)
+bucket_list = list_buckets(client)
+
+for bucket in bucket_list:
+    print bucket
+
 ```
 
 
@@ -144,14 +156,20 @@ def list_objects(client, bucket):
 
     for obj in lsb_resp['Contents']:
         yield obj['Key']
+
+print "list_objects function created"
 ```
+
 
 Now, call it.  You will first have to define the bucket you want to list though.  Keep in mind that you probably don't want to choose a bucket that has a lot of objects in it, since the printout will take time and screen real estate.
 
 ```python
 
 bucket='mybucket'
-list_objects(client, bucket)
+objList = list_objects(client, bucket)
+
+for objKey in objList:
+    print objKey
 
 ```
 
@@ -160,16 +178,21 @@ list_objects(client, bucket)
 
 In order to put an object, you some content.  This can either be a file (more specifically, the contents of a file), or it can simply be some data (we'll use text data)
 
-First you'll set a variable to hold some text.
+First you'll set a variable to hold some text, and we'll shove it into a tempfile.
 
 ```python
 
 TEST_TEXT = ('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do '
              'eiusmod tempor incididunt ut labore et dolore magna aliqua.')
 
+fd = tempfile.TemporaryFile()
+fd.write(TEST_TEXT)
+fd.flush()
+fd.seek(0)
+
+print fd.read()
 ```
 
-We'll use that variable to fill our object with some 'data'.
 Next, lets define a function which will do the actual work of uploading:
 
 
@@ -186,13 +209,16 @@ def put_object(client, bucket, key, fd):
 
     # Return the object's version
     return put_resp['VersionId']
+
+print "put_object function defined"
 ```
 
 In order to run it, we'll call it and pass it some variables & objects that we got from before:
 
 ```python
-
-put_object(client,bucket,key,fd)
+objKey = "tempfile"
+put_object(client,bucket,objKey,fd)
+fd.close()
 
 ```
 
