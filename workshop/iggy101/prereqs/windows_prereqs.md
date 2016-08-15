@@ -50,3 +50,22 @@ There are a few ways to get python modules installed in Windows, the simplest is
 
 
 You have now got python and dependancies setup and installed on Windows!
+
+
+#### S3cmd setup
+
+1.  Download the latest zip file from [here](https://github.com/s3tools/s3cmd/archive/master.zip)
+2.  Find the file you downloaded in Windows Explorer (usually in `Downloads`), right click, then `Extract all` .  Make sure to change the path to `c:\s3cmd`
+
+	![image](pics/win_extract_s3cmd.png)
+
+3.  It will prompt you for where to extract it to, feel free to take the defaults, but make a note of the path you see (copy it into your clipboard to make life easier)
+
+3.  Next you will need to open up your `Command Prompt` window, and change Directories.  EG:
+
+		cd %homepath%\Downloads\s3cmd-master\s3cmd-master
+
+	*Note that if the directory you downloaded the zip file to was not in your Downloads folder, you will need to adjust*
+4.  Run the following command to install s3cmd:
+
+		python setup.py install
