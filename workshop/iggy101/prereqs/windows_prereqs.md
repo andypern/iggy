@@ -57,11 +57,11 @@ You have now got python and dependancies setup and installed on Windows!
 1.  Download the latest zip file from [here](https://github.com/s3tools/s3cmd/archive/master.zip)
 2.  Find the file you downloaded in Windows Explorer (usually in `Downloads`), right click, then `Extract all` .  Make sure to change the path to `c:\s3cmd`
 
-	![image](pics/win_extract_s3cmd.png)
+	![image](../pics/win_extract_s3cmd.png)
 
 3.  It will prompt you for where to extract it to, feel free to take the defaults, but make a note of the path you see (copy it into your clipboard to make life easier)
 
-3.  Next you will need to open up your `Command Prompt` window, and change Directories.  EG:
+3.  Next you will need to open up your `Anaconda Prompt` window, and change Directories.  EG:
 
 		cd %homepath%\Downloads\s3cmd-master\s3cmd-master
 
@@ -69,3 +69,23 @@ You have now got python and dependancies setup and installed on Windows!
 4.  Run the following command to install s3cmd:
 
 		python setup.py install
+
+5.  In the same `Anaconda` window, you should be able to run the following :
+
+	python s3cmd --version
+
+It should return something like this:
+
+	s3cmd version 1.6.1
+
+ To make it easy to run s3cmd in the future, you're going to create a quick .bat file.  
+
+1.  Open up `notepad`
+2.  Put the following text in:
+
+	python.exe %homepath%\s3cmd-master\s3cmd %*
+3.  Save the file into `c:\Anaconda2` , and name it `s3cmd.bat`
+
+	***Make sure to change the 'Save as type' to 'all files'***
+
+	![image](../pics/win_save_bat.png)
