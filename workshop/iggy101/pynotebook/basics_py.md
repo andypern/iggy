@@ -208,7 +208,7 @@ def put_object(client, bucket, key, fd):
     )
 
     # Return the object's version
-    return put_resp['VersionId']
+    return put_resp
 
 print "put_object function defined"
 ```
@@ -298,7 +298,7 @@ def delete_object(client, bucket, key):
         Bucket=bucket,
         Key=key)
 
-    return get_resp['VersionId']
+    return get_resp
 ```
 
 
