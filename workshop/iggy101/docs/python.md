@@ -1,23 +1,50 @@
-# Python lab
 
-##Other reading
+# Python Lab
 
-You may also find information on using the boto3 python library here:
+In this lab you'll get a primer on how to interact with the Igneous Data Service using python and Amazon's `boto3` library.
+
+## Additional documentation
+
 
 * [Using Boto3 - AWS's SDK for Python](https://igneoussystemshelp.zendesk.com/knowledge/articles/222814587)
-
 * [Boto3 - Retry operations](https://igneoussystemshelp.zendesk.com/knowledge/articles/223204708)
+* [Amazon's boto3 doc page for S3](http://boto3.readthedocs.io/en/latest/reference/services/s3.html)
+* [Amazon's Boto3 github page](https://github.com/boto/boto3)
 
-## Import modules
 
-## Setup connection parameters
 
-## Test connnection & List buckets
+## Lab objectives
 
-## List objects/Keys within a bucket
+After you complete this lab and associated exercises, you will have experience:
 
-## head object ( get metadata about an object )
+* Setting up a connection constructor
+* Listing buckets/containers
+* Listing objects/Keys within a bucket
+* Putting a file
+* Getting a file
+* Getting metadata about an object
+* Deleting an object
 
-## Put a file
 
-## Get a file
+## Using Jupyter notebooks
+
+***Note: if you are comfortable editing scripts and launching them from the command line, code snippets are available here:  https://gist.github.com/zinic/c45e1f9099c2d89f2e4c570e4cb78c78***
+
+Jupyter notebook (the successor to Ipython notebook) enables you to easily get started running and editing python scripts right in your web browser.
+
+**Windows users:**
+
+When installing Anaconda earlier, Jupyter was installed on your machine.  Its accessible from your `All Programs` menu, clicking on the `Jupyter Notebook` icon:
+
+
+![image](../pics/win_launch_jupyter.png)
+
+**Mac & Linux users:**
+
+1.  If you haven't already, install jupyter using pip:
+
+        pip install jupyter
+
+2.  To Launch it:
+
+        jupyter notebook
