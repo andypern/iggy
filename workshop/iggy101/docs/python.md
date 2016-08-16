@@ -70,7 +70,40 @@ This will create a folder called `Untitled Folder`
 
 2.  Click the checkbox next to  `Untitled Folder` , then click `Rename`:
 
-![image](../pics/jupyter_checkbox_untitled.png)
+![image](../pics/jupyter_rename.png)
 
 
-3.  
+3.  Choose a suitable name, like `Igneous Projects`
+
+4.  Click on the link for the folder you just renamed, which should bring you inside the directory
+
+### Download pynotebooks
+
+1.  In a new web browser window or tab, open [basics.ipynb](https://raw.githubusercontent.com/andypern/iggy/master/workshop/iggy101/pynotebook/basics.ipynb)
+
+2.  Once you land on the page, click `File -> Save as` in your browser, and navigate to the folder you created.  `Windows users` make sure to change the file type to `All files` , and ensure that the filename is `basics.ipynb` , without any additional extensions.
+
+![image](../pics/notebook_saveas.png)
+
+3.  Go back to your `Jupyter Notebook` browser/tab , and hit the `Refresh` button.  You should now see `basics.ipynb` show up.
+
+![image](../pics/jupyter_basics_refresh.png)
+
+4.  Click on `basics.ipynb` , and you should now be in a notebook!
+
+![image](../pics/jupyter_basics_initial.png)
+
+
+### Working in a notebook
+
+A notebook is comprised of paragraphs or 'cells'.  A cell will generally be `Markdown` (formatted text), or  `Code` (python).  You can identify a `code` cell by its grey background, eg:
+
+![image](../pics/jupyter_markdown_vs_code.png)
+
+You can make modifications to `code` cells, and in some cases during this lab you will need to.  Simply click inside a `code` cell, and type.
+
+When you want to execute a `code` cell, simply click anywhere inside of it, and click the `play` button:
+
+![image](../pics/jupyter_execute.png)
+
+***Note: during this lab, you should always execute cells in order, starting from top to bottom.  If you make a change in a cell, make sure to execute it before moving to the next cell, as they are dependant on each other***
