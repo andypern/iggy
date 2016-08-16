@@ -252,6 +252,34 @@ print objContents
 
 ## Head object
 
+The `head_object` method allows you to get metadata, including extended metadata on an individual object basis.
+
+First, define the function:
+
+```python
+def head_object(client, bucket,objKey):
+	try:
+		response = client.head_object(
+			Bucket=bucket,
+			Key=objKey)
+        return response
+
+	except botocore.exceptions.ClientError as e:
+		error_code = int(e.response['Error']['Code'])
+		#print error_code
+		return "failed: %s" %(error_code)
+
+print "defined head_object function"
+```
+
+Next, lets actually run it:
+
+```python
+
+objKey = "mykey"
+objMeta = head_object(client, bucket, objKey)
+print objMeta
+
 
 
 
