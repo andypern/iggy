@@ -172,7 +172,7 @@ Now that you have a file or two (or more) uploaded, you can practice downloading
 
         s3cmd get s3://guest1-5/$USER ~/s3downloads
     **Windows Users**:
-        s3cmd s3://guest1-5/%username% %homepath%\s3downloads
+        s3cmd get s3://guest1-5/%username% %homepath%\s3downloads
 
 4.  Verify you can see the files locally by navigating to your local `s3downloads` folder.
 
@@ -187,7 +187,7 @@ Once you've located an appropriate folder:
 
 **Windows Users:**
 
-    s3cmd sync %homepath\demo s3://guest1-5/%username/backup/demo
+    s3cmd sync %homepath\demo s3://guest1-5/%username/backup/demo/
 
 
 **Linux & Mac Users:**
