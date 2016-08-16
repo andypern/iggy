@@ -107,3 +107,13 @@ When you want to execute a `code` cell, simply click anywhere inside of it, and 
 ![image](../pics/jupyter_execute.png)
 
 ***Note: during this lab, you should always execute cells in order, starting from top to bottom.  If you make a change in a cell, make sure to execute it before moving to the next cell, as they are dependant on each other***
+
+## Working through the lab
+
+Now that you have everything setup, you're ready to go through the lab.  If you get stuck, waive your lab instructor down and they will help get you going.
+
+## Additional exercises
+
+If you are able to complete the lab and still have time and willingness left over, here are some additional scripts which you can experiment with.  Note they are not in `notebook` format, but you can simply copy/paste code into empty `code` cells in Jupyter.
+
+* [backup_to_IGNEOUS.py](https://github.com/andypern/iggy/blob/master/workshop/iggy101/advanced/backup_to_IGNEOUS.py) : a script which scans a folder on your local filesystem, and uploads everything to Igneous.  *Single threaded*

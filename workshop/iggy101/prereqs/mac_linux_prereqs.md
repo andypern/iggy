@@ -10,16 +10,6 @@ At bare minimum, you will need sudo or administrative privileges (to be able to 
 For s3cmd & python exercises, you will need to be familiar with how to open and use a terminal window.
 
 
-## MISC pre-req's
-
-Not all of these tools are necessary, but are helpful.  Some of you will already have these installed, if so, feel free to skip this section.
-
-
-* homebrew
-* wget
-* git
-
-
 
 ## Python pre-req's
 

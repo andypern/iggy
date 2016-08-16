@@ -84,7 +84,8 @@ It should return something like this:
 1.  Open up `notepad`
 2.  Put the following text in:
 
-	python.exe c:\s3cmd\s3cmd-master\s3cmd %*
+		python.exe c:\s3cmd\s3cmd-master\s3cmd %*
+		
 3.  Save the file into `c:\Anaconda2` , and name it `s3cmd.bat`
 
 	***Make sure to change the 'Save as type' to 'all files'***

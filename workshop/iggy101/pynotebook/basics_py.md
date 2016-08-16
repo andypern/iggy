@@ -45,7 +45,7 @@ You'll need to input a few things in order to get started.
 ```python
 access_key=''
 secret_key=''
-endpoint_url='http://demo.iggy.bz:7070'
+endpoint_url='http://sd-igneous.qualcomm.com:7070'
 use_ssl = False
 
 print "variables set"
@@ -248,6 +248,10 @@ print objContents
 
 
 ```
+
+
+## Head object
+
 
 
 
