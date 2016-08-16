@@ -115,6 +115,6 @@ To run:
 1.  Change directories to a folder which has python notebooks in it, or where you wish to save some.  This can also be a top level folder.
 2.  Run:
 
-    jupyter notebooks
+        jupyter notebook
 
 This will stay running in your terminal's foreground, and will launch a web browser which you can then interact with.  If you wish to stop Jupyter , simply go back to the terminal in which you launched it, and press `Crtl-c`

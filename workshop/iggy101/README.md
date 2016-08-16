@@ -11,8 +11,9 @@ The goal of this lab exercise is to get you familiar with accessing your on prem
 
 
 
+## Pre-req's
 
-testing
+First, navigate to [Prereq's](prereqs)
 
 # appendix
 
