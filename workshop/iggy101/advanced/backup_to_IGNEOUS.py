@@ -29,7 +29,7 @@ class ProgressPercentage(object):
 client = boto3.client (
 	's3',
 	use_ssl=False,
-	endpoint_url='http://igneousdemo.iggy.bz/',
+	endpoint_url='http://igneousdemo.iggy.bz:80',
 	aws_access_key_id='IGNEOUSACCESSKEY',
 	aws_secret_access_key='IGNEOUSSECRETKEY'
 )
