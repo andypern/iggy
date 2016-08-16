@@ -37,11 +37,13 @@ Once you have received an `.s3cfg` or `s3cmd.ini` file from your administrator, 
 Inside, you should see contents similar to:
 
     [default]
-    access_key = MJ96N3L3BA4IJ9C1YI1x
-    secret_key = AxgWTyDS9ZQdPgc3Y7eJREUVF5qBFJqaAwWEY02x
-    host_base = 10.105.0.21
+    access_key = 29NCIGG864W0SAGEULVQ
+    secret_key = s80sTu4mi+HyFXg3jvYhX14PVOd/PFKGhq7R2XQL
+    host_base = sd-igneous
     host_bucket =
     use_https = False
+    signature_v2 = True
+    multipart_chunk_size_mb = 15
 
 The access_key and secret_key can also be used in other applications which require those parameters (such as a python script, or an application such as CyberDuck or ARQ).  Check with your lab instructor or administrator to ensure that the host_base value is correct for the system you will be connecting to.  Assuming all is well, you can simply copy this file:
 
@@ -57,7 +59,7 @@ You should have received both a `.s3cfg` and a `s3cmd.ini` file.  Save the `s3cm
 
     cp /path/to/downloaded/s3cfg_file ~/.s3cfg
 
-##Test connection & List buckets
+## Test connection & List buckets
 
 The simplest way to test if your configuration is valid is to list all buckets.  
 
@@ -111,9 +113,9 @@ Note that `s3cmd` is able to identify 'directories' vs 'files'.  The output is s
 
 You will also want to list your own bucket, to make sure you have correct access to it:
 
-    s3cmd ls s3://$username
+    s3cmd ls s3://guest$
 
-***Note: $username should be replaced with the name of the bucket named after your login name.  It may differ from the username on your local machine.  If in doubt, ask your lab instructor for the correct syntax***
+***Note: guest$ should be replaced with the name of the bucket you were assigned (guest1-5).  I  If in doubt, ask your lab instructor for the correct syntax***
 
 
 
@@ -125,17 +127,17 @@ You will also want to list your own bucket, to make sure you have correct access
 
     **Windows Users**:
 
-        s3cmd put %homepath%\myfile.txt s3://$username
+        s3cmd put %homepath%\myfile.txt s3://guest1-5/%username%
 
     **Linux & Mac Users**:
 
-        s3cmd put ~/myfile.txt s3://$username
+        s3cmd put ~/myfile.txt s3://guest1-5/$USER
 
-    *Again, substitute the $username for your bucket, and substitute 'myfile.txt' with whatever filename you want to upload*
+    *Again, substitute the guest1-5 with the proper buckjet, and $username for your own username, and substitute 'myfile.txt' with whatever filename you want to upload*
 
 3.  You can verify that your upload made it by listing the bucket again:
 
-        s3cmd ls s3://$username
+        s3cmd ls s3://%username%
 
 You can repeat file uploads for as many files as you wish.
 
@@ -154,7 +156,7 @@ Now that you have a file or two (or more) uploaded, you can practice downloading
 
 2.  Determine the URI of the object you wish to download.  The simplest way is to perform a listing of your bucket:
 
-        s3cmd ls s3://$username
+        s3cmd ls s3://guest1-5
 
     *As seen previously, this will print out a list of objects, and include the URI which you can use.  For example:*
 
@@ -168,9 +170,9 @@ Now that you have a file or two (or more) uploaded, you can practice downloading
 
     **Linux & Mac Users**:
 
-        s3cmd get s3://$username ~/s3downloads
+        s3cmd get s3://guest1-5/$USER ~/s3downloads
     **Windows Users**:
-        s3cmd s3://$username %homepath%\s3downloads
+        s3cmd s3://guest1-5/%username% %homepath%\s3downloads
 
 4.  Verify you can see the files locally by navigating to your local `s3downloads` folder.
 
@@ -183,8 +185,14 @@ Pick a  a folder on your laptop with a fair number of files and subdirectories. 
 
 Once you've located an appropriate folder:
 
+**Windows Users:**
 
-    s3cmd sync ~/Desktop/demo s3://andypern/backup/Desktop
+    s3cmd sync %homepath\demo s3://guest1-5/%username/backup/demo
+
+
+**Linux & Mac Users:**
+
+    s3cmd sync ~/Desktop/demo s3://guest1-5/$USER/backup/Desktop
 
 ***note: s3cmd will create the necessary 'folder structure' , just be sure to put in the correct bucket name.***
 

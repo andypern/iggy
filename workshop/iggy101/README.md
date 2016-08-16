@@ -26,3 +26,5 @@ The goal of this lab exercise is to get you familiar with accessing your on prem
 
 * [S3cmd](labs/s3cmd.md)
 * [Python](labs/python.md)
+* CloudBerry (windows only)
+* Cyberduck (windows & mac)

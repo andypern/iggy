@@ -6,8 +6,8 @@ In this lab you'll get a primer on how to interact with the Igneous Data Service
 ## Additional documentation
 
 
-* [Using Boto3 - AWS's SDK for Python](https://igneoussystemshelp.zendesk.com/knowledge/articles/222814587)
-* [Boto3 - Retry operations](https://igneoussystemshelp.zendesk.com/knowledge/articles/223204708)
+* [Using Boto3 - AWS's SDK for Python](https://igneoussystemshelp.zendesk.com/knowledge/articles/222814587) *requires igneous community login*
+* [Boto3 - Retry operations](https://igneoussystemshelp.zendesk.com/knowledge/articles/223204708) *requires igneous community login*
 * [Amazon's boto3 doc page for S3](http://boto3.readthedocs.io/en/latest/reference/services/s3.html)
 * [Amazon's Boto3 github page](https://github.com/boto/boto3)
 
