@@ -8,7 +8,7 @@ Download:
 ## Installing
 1.  Clean up existing fuse & s3fs-fuse packages:
 
-        yum erase -y fuse s3fs-fuse
+        yum erase -y fuse fuse-libs s3fs-fuse
 
 2.  Install the new RPMs (in order!):
 
