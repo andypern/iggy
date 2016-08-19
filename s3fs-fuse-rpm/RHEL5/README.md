@@ -1,5 +1,11 @@
 # S3fs-Fuse RPM for Igneous & RHEL5
 
+Download:
+
+*  [fuse-2.8.4-rhel5.x86_64.rpm](RPMS/fuse-2.8.4-rhel5.x86_64.rpm)
+*  [s3fs-fuse-1.79-rhel5.x86_64.rpm](RPMS/s3fs-fuse-1.79-rhel5.x86_64.rpm)
+
+## Installing
 1.  Clean up existing fuse & s3fs-fuse packages:
 
         yum erase -y fuse s3fs-fuse
@@ -35,21 +41,24 @@
         s3fs: missing BUCKET argument
         Usage: s3fs BUCKET:[PATH] MOUNTPOINT [OPTION]...
 
-5.  Make a ~/.passwd-s3fs file w/ following contents:
+
+## Using
+
+1.  Make a ~/.passwd-s3fs file w/ following contents:
 
         accessKeyId:secretAccessKey
 
         ***obviously, replace with the appropriate access_key & secret_key***
 
-6.  Make password file r/o:
+2.  Make password file r/o:
 
         chmod 600 ~/.passwd-s3fs
 
-7.  Make a folder where you can mount your bucket to (substitute `mybucket` with the name of the container/bucket you want to mount):
+3.  Make a folder where you can mount your bucket to (substitute `mybucket` with the name of the container/bucket you want to mount):
 
         mkdir /mnt/myBucket
 
-8.  Finally, run the following
+4.  Finally, run the following
 
 
     s3fs myBucket /mnt/myBucket \
