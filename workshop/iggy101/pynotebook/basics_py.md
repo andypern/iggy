@@ -2,6 +2,9 @@
 
 # Python lab
 
+```python
+import os
+```
 
 ## Other reading
 

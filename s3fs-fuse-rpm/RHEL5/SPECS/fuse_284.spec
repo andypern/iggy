@@ -76,3 +76,4 @@ ln -s /usr/lib/pkgconfig/fuse.pc /usr/lib64/pkgconfig/fuse.pc
 
 export PKG_CONFIG_PATH=/usr/lib/pkgconfig
 ldconfig -n /usr/lib
+modprobe fuse
