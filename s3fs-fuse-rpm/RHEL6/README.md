@@ -1,4 +1,4 @@
-# S3fs-Fuse RPM for Igneous & RHEL5
+# S3fs-Fuse RPM for Igneous & RHEL6
 
 Download:
 
