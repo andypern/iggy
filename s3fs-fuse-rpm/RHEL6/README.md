@@ -35,7 +35,7 @@ Download:
 
         which s3fs
     Also:
-	
+
         s3fs -h
 
     Should return:
@@ -67,9 +67,6 @@ Download:
     -o url=http://endpoint_ip:7070 \
       -o use_path_request_style \
       -o passwd_file=~/.passwd-s3fs \
-      -o nocopyapi \
-      -o norenameapi \
-      -o nomultipart \
       -o sigv2 \
       -o allow_other
 ```
