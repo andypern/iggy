@@ -1,5 +1,14 @@
 #!/usr/bin/env python
 
+```
+this script:
+
+1) creates a test file
+2) checks metadata on the test file
+3) puts new metadata key
+
+You can modify the metadata directive (its buried in put_obj_metadata)
+```
 import boto3
 import botocore
 
