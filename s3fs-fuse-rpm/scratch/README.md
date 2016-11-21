@@ -169,6 +169,45 @@ mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
  ```
 
 
+# Centos 7
+
+This should be easier..
+
+## pre-req's
+
+sudo yum install automake fuse fuse-devel gcc-c++ git libcurl-devel libxml2-devel make openssl-devel
+
+Note that its installing fuse-2.9 by default on cent7, no need for a fuse RPM.
+
+## s3fs-fuse
+
+git clone https://github.com/s3fs-fuse/s3fs-fuse.git
+cd s3fs-fuse
+./autogen.sh
+./configure
+make
+sudo make install
+
+## building an RPM for s3fs-fuse
+
+yum install -y rpm-build
+cd /root/s3fs-fuse
+make clean
+cd ..
+
+mv s3fs-fuse s3fs-fuse-1.8.0
+
+tar -czf s3fs-fuse-1.8.0.tar.gz s3fs-fuse-1.8.0
+
+
+Note: different spec file for RHEL6
+mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+
+cp s3fs-fuse-1.8.0.tar.gz /root/rpmbuild/SOURCES/
+cp s3fs-fuse-1.8.0.spec /root/rpmbuild/SPECS/
+rpmbuild -bb /root/rpmbuild/SPECS/s3fs-fuse-1.8.0.spec
+
+
 
 
 

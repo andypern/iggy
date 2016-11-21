@@ -1,7 +1,7 @@
 Name:           s3fs-fuse
 Version:        1.8.0
 Summary:        FUSE interface for S3
-Release:        rhel6
+Release:        rhel7
 Group: 		Applications/FS
 License: 	GPLv2
 BuildArch: 	x86_64
@@ -36,7 +36,7 @@ rm -rf %{buildroot}
 %files
 
 /usr/bin/s3fs
-/usr/share/man/man1/s3fs.1.gz
+/usr/share/man/man1/s3fs.1
 
 %post
 ldconfig
