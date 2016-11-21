@@ -34,6 +34,7 @@ Download:
 
         which s3fs
     Also:
+
         s3fs
 
     Should return:
@@ -48,7 +49,7 @@ Download:
 
         accessKeyId:secretAccessKey
 
-        ***obviously, replace with the appropriate access_key & secret_key***
+    ***obviously, replace with the appropriate access_key & secret_key***
 
 2.  Make password file r/o:
 
@@ -60,15 +61,13 @@ Download:
 
 4.  Finally, run the following
 
-
+```
     s3fs myBucket /mnt/myBucket \
     -o url=http://endpoint_ip:7070 \
       -o use_path_request_style \
       -o passwd_file=~/.passwd-s3fs \
-      -o nocopyapi \
-      -o norenameapi \
-      -o nomultipart \
       -o sigv2 \
       -o allow_other
+  ```
 
 ***substitute the appropriate hostname/IP for `endpoint_ip`***

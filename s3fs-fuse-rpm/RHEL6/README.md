@@ -26,6 +26,7 @@ Download:
 
         fuse-2.8.4-rhel6
         s3fs-fuse-1.8.0-rhel6
+
 4.  Enable fuse module:
 
         sudo modprobe fuse
@@ -34,6 +35,7 @@ Download:
 
         which s3fs
     Also:
+	
         s3fs -h
 
     Should return:
@@ -48,7 +50,7 @@ Download:
 
         accessKeyId:secretAccessKey
 
-        ***obviously, replace with the appropriate access_key & secret_key***
+    ***obviously, replace with the appropriate access_key & secret_key***
 
 2.  Make password file r/o:
 
@@ -60,7 +62,7 @@ Download:
 
 4.  Finally, run the following
 
-
+```
     s3fs myBucket /mnt/myBucket \
     -o url=http://endpoint_ip:7070 \
       -o use_path_request_style \
@@ -70,5 +72,5 @@ Download:
       -o nomultipart \
       -o sigv2 \
       -o allow_other
-
+```
 ***substitute the appropriate hostname/IP for `endpoint_ip`***
