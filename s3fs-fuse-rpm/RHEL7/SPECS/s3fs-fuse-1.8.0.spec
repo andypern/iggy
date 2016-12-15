@@ -36,7 +36,7 @@ rm -rf %{buildroot}
 %files
 
 /usr/bin/s3fs
-/usr/share/man/man1/s3fs.1
+/usr/share/man/man1/s3fs.1.gz
 
 %post
 ldconfig
