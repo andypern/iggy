@@ -11,6 +11,8 @@ https://www.elastic.co/guide/en/elasticsearch/plugins/5.x/mapper-attachments.htm
 To install:
 		sudo bin/plugin install mapper-attachments
 
+On 5.1, the new version is the 'ingest attachment' plugin, although it is different in nature..need to do more research
+
 after installing must restart ES on all nodes.
 
 
@@ -57,7 +59,7 @@ PUT /docindex/doc/_mapping
         "type": "attachment",
         "fields": {
           "content": {
-            "type": "string",
+            "type": "text",
             "term_vector":"with_positions_offsets",
             "store": true
           }
@@ -67,6 +69,7 @@ PUT /docindex/doc/_mapping
   }
 }
 ```
+(in 5.x replace `string` with `text`)
 shove a document in (base64 encoded string):
 ```
 PUT /docindex/doc/1?refresh=true
@@ -78,7 +81,7 @@ search :
 ```
 GET /docindex/doc/_search
 {
-  "fields": [],
+  "stored_fields": [],
   "query": {
     "match": {
       "file.content": "king queen"
