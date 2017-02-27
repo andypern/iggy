@@ -1,0 +1,9 @@
+[global]
+rw=randread
+size=10g
+bs=1m
+filename=/mnt/ntap/andy/fio/100gb.file
+
+[job1]
+
+[job2]

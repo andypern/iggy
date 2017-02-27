@@ -1,0 +1,5 @@
+./s3bench.new -accessKey BES30GB4I2KNZN0TS2UY \
+-accessSecret RxB7LXSbbsf5qSowl+ExDzWyHujFWrlDJ/Z3h3/5 \
+-bucket apcontainer \
+-endpoint http://igneousdemo.iggy.bz:7070 \
+-objectNamePrefix nick

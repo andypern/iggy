@@ -2,7 +2,7 @@
 
 Many of the following steps apply both to Linux as well as OSX.  When there are specific differences between the commands used, you will be directed to either `Linux users`, or `Mac users`
 
-If you are logged into a linux workstation or shared server, some of these tools may already be installed.  Depending on the specific distribution of linux that you are running, some of the commands may differ slightly from what is shown here.  The following assumes you are running RHEL7 or Centos 7.  The main dependancy is python 2.7.x.
+If you are logged into a linux workstation or shared server, some of these tools may already be installed.  Depending on the specific distribution of linux that you are running, some of the commands may differ slightly from what is shown here.  The following assumes you are running RHEL7 or Centos 7.  The main dependency is python 2.7.x.  ***Note that this lab will not work with python 3+***
 
 
 At bare minimum, you will need sudo or administrative privileges (to be able to install packages and software).  If you do not have this privilege level, please inform the one of the lab facilitators and they will assist you.
@@ -103,7 +103,7 @@ S3cmd is now installed!
 
 ## Optional : setup jupyter
 
-Jupyter is a notebook based python environment which makes it easy to expiriment and share scripts with others.  
+Jupyter is a notebook based python environment which makes it easy to experiment and share scripts with others.  
 
 To install:
 

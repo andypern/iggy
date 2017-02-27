@@ -12,6 +12,20 @@ fix /etc/profile:
 
 run:
 
-	iozone -s 10000000 -r 1024 -f /mnt/s3/iozone/temp
+	iozone -s 1g -r 1m -f /mnt/bstor/iozone/temp
 
-	
+writes:
+
+	iozone -C -s 1g -r 1m -i 0 -w -f /mnt/bstor/iozone/temp
+
+Direct:
+	iozone -C -s 1g -r 1m -I -i 0 -w -f /mnt/bstor/iozone/temp
+
+
+reads:
+
+	iozone -C -s 1g -r 1m -i 1 -f /mnt/bstor/iozone/temp
+
+
+
+	/opt/iozone/bin/iozone -C -s 4g -r 1m -i 0 -w -t 1 -F /mnt/goofy/goofy/temp1
