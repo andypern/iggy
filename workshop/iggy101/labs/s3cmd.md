@@ -85,7 +85,7 @@ If you see a list of buckets, then you're OK:
     2016-01-26 03:47  s3://newBucket
 
 
-***Note: just because you can see a bucket in the list, does not mean you have access to it***
+***Note: you will only be able to see buckets which you have access to.  Therefore, your bucket listing may differ from your colleague's.***
 
 ### List objects in a bucket
 

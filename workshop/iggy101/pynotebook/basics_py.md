@@ -2,9 +2,7 @@
 
 # Python lab
 
-```python
-import os
-```
+
 
 ## Other reading
 
@@ -19,6 +17,7 @@ You may also find information on using the boto3 python library here:
 To begin with, execute the following code to import the modules needed for this exercise:
 
 ```python
+import os
 import boto3
 import tempfile
 
@@ -48,7 +47,7 @@ You'll need to input a few things in order to get started.
 ```python
 access_key=''
 secret_key=''
-endpoint_url='http://sd-igneous.qualcomm.com:7070'
+endpoint_url='http://10.1.66.107:7070'
 use_ssl = False
 
 print "variables set"
@@ -57,7 +56,7 @@ print "variables set"
 
 ## Setup connection parameters
 
-You don't need to change anything here, but take notice of what we're doing. Baiscally, we're taking the access_key and secret-key , and creating a session object which we will later use to establish a connection.
+You don't need to change anything here, but take notice of what we're doing. Basically, we're taking the access_key and secret-key , and creating a session object which we will later use to establish a connection.
 
 
 ```python
@@ -72,7 +71,7 @@ print "session function created"
 
 ```
 
-Once we h ave the session object, Here's how to create a connection constructor.  Note that we're calling the 'boto3_session' function from within the boto3_s3_client function.
+Once we have the session object, Here's how to create a connection constructor.  Note that we're calling the 'boto3_session' function from within the boto3_s3_client function.
 
 ```python
 def boto3_s3_client(access_key, secret_key, endpoint_url):
@@ -109,7 +108,7 @@ print client
 
 
 
-## Test connnection & List buckets
+## Test connection & List buckets
 Note that merely creating and executing a connection constructor isn't enough to know if its working, you actually have to *use* it.  Therefore, to test it out, lets have it list buckets
 
 

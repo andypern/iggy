@@ -28,7 +28,7 @@ After you complete this lab and associated exercises, you will have experience:
 
 ##  Jupyter notebooks
 
-***Note: if you are comfortable editing scripts and launching them from the command line, code snippets are available here:  https://gist.github.com/zinic/c45e1f9099c2d89f2e4c570e4cb78c78***
+***Note: if you are comfortable editing scripts and launching them from the command line, code snippets are available here:  https://github.com/andypern/iggy/tree/master/workshop/iggy101/advanced**
 
 Jupyter notebook (the successor to Ipython notebook) enables you to easily get started running and editing python scripts right in your web browser.
 
@@ -106,7 +106,7 @@ When you want to execute a `code` cell, simply click anywhere inside of it, and 
 
 ![image](../pics/jupyter_execute.png)
 
-***Note: during this lab, you should always execute cells in order, starting from top to bottom.  If you make a change in a cell, make sure to execute it before moving to the next cell, as they are dependant on each other***
+***Note: during this lab, you should always execute cells in order, starting from top to bottom.  If you make a change in a cell, make sure to execute it before moving to the next cell, as they are dependent on each other***
 
 ## Working through the lab
 

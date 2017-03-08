@@ -70,6 +70,7 @@ For s3cmd & python exercises, you will need to be familiar with how to open and 
 
 ## s3cmd
 
+***maybe they can do 'pip install s3cmd??'***
 
 There is a simple walkthrough of s3cmd located here:  https://igneoussystemshelp.zendesk.com/knowledge/articles/223409967/en-us?brand_id=1018328
 

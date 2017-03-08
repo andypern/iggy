@@ -1,12 +1,12 @@
 # Windows pre-requisites
 
 
-Note that this document was written and tested with Windows7 , but should work with Windows10 also.  
+Note that this document was written and tested with Windows7 , but should work with Windows10 also.
 
 
 ## Getting Python installed
 
-1.  Grab the anaconda installer for python 2.7: https://repo.continuum.io/archive/Anaconda2-4.3.0.1-Windows-x86_64.exe
+1.  Grab the [anaconda installer for python 2.7](https://repo.continuum.io/archive/Anaconda2-4.3.0.1-Windows-x86_64.exe)
 2.  Select `All users (requires admin privileges)` .  If you do not have admin privileges, choose the `Just Me` option, however you will need to adjust some folder paths in later instructions.  
 
 3.  Make sure on the 'Advanced Installation Options' page you leave both boxes Checked as shown below:
